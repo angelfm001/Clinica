@@ -5,6 +5,11 @@ import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
+    path: 'info',
+    loadComponent: () => import('./features/info/info.component').then((m) => m.InfoComponent),
+    title: 'Información · Citas Médicas',
+  },
+  {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login.component').then((m) => m.LoginComponent),
     title: 'Iniciar sesión · Citas Médicas',
