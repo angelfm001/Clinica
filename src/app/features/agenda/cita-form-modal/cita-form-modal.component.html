@@ -1,0 +1,98 @@
+<ui-modal [open]="open()" title="Nueva cita" width="620px" (close)="close.emit()">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label>Paciente <span class="req">*</span></label>
+      <div class="autocomplete">
+        @if (pacienteSeleccionado(); as p) {
+          <div class="selected-chip">
+            <span class="avatar" style="width:28px;height:28px;font-size:10.5px">{{ (p.nombres + ' ' + p.apellidos) | iniciales }}</span>
+            <span class="grow small strong">{{ p.nombres }} {{ p.apellidos }}</span>
+            <span class="xs muted">{{ p.numeroDocumento }}</span>
+            <button type="button" class="icon-btn bare" (click)="limpiarPaciente()">
+              <ui-icon name="x" [size]="14" />
+            </button>
+          </div>
+        } @else {
+          <input
+            class="input"
+            placeholder="Buscar por nombre o documento…"
+            [value]="pacienteQuery()"
+            (input)="buscarPaciente($any($event.target).value)"
+          />
+          @if (pacienteResultados().length > 0) {
+            <div class="ac-results">
+              @for (p of pacienteResultados(); track p.pacienteId) {
+                <button type="button" class="ac-item" (click)="seleccionarPaciente(p)">
+                  <span class="avatar" style="width:30px;height:30px;font-size:11px">{{ (p.nombres + ' ' + p.apellidos) | iniciales }}</span>
+                  <span class="grow">
+                    <span class="small strong" style="display:block">{{ p.nombres }} {{ p.apellidos }}</span>
+                    <span class="xs muted">{{ p.tipoDocumento }} {{ p.numeroDocumento }}</span>
+                  </span>
+                </button>
+              }
+            </div>
+          } @else if (pacienteQuery().length >= 2 && !buscandoPaciente()) {
+            <p class="hint mt-8">Sin coincidencias. Verifica el nombre o documento.</p>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="form-grid mt-16">
+      <div class="field">
+        <label>Especialidad <span class="req">*</span></label>
+        <select class="select" formControlName="especialidadId" (change)="onEspecialidadChange()">
+          <option [value]="0">Seleccione</option>
+          @for (e of especialidades(); track e.especialidadId) { <option [value]="e.especialidadId">{{ e.nombre }}</option> }
+        </select>
+      </div>
+      <div class="field">
+        <label>Médico <span class="req">*</span></label>
+        <select class="select" formControlName="medicoId" (change)="onMedicoOFechaChange()">
+          <option [value]="0">Seleccione</option>
+          @for (m of medicosFiltrados(); track m.medicoId) { <option [value]="m.medicoId">Dr(a). {{ m.nombres }} {{ m.apellidos }}</option> }
+        </select>
+      </div>
+      <div class="field">
+        <label>Fecha <span class="req">*</span></label>
+        <input class="input" type="date" formControlName="fecha" (change)="onMedicoOFechaChange()" />
+      </div>
+      <div class="field">
+        <label>Hora <span class="req">*</span></label>
+        <input class="input" [value]="form.controls.hora.value" readonly placeholder="Seleccione un horario abajo" />
+      </div>
+      <div class="field full">
+        <label>Motivo de consulta</label>
+        <textarea class="textarea" rows="2" formControlName="motivo" placeholder="Describe brevemente el motivo de la consulta"></textarea>
+      </div>
+    </div>
+
+    @if (form.controls.medicoId.value && form.controls.fecha.value) {
+      <p class="section-label">Horarios disponibles</p>
+      @if (loadingSlots()) {
+        <div class="row gap-8 wrap">
+          @for (i of [1,2,3,4,5,6]; track i) { <div class="skeleton" style="width:64px;height:34px;border-radius:8px"></div> }
+        </div>
+      } @else if (slots().length === 0) {
+        <p class="muted small">Este médico no tiene horario configurado para el día seleccionado.</p>
+      } @else {
+        <div class="slot-grid">
+          @for (s of slots(); track s.hora) {
+            <button
+              type="button"
+              class="slot"
+              [class.selected]="form.controls.hora.value === s.hora"
+              [disabled]="!s.disponible"
+              (click)="pick(s.hora)"
+            >{{ s.hora }}</button>
+          }
+        </div>
+      }
+    }
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="close.emit()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Agendando…' : 'Agendar cita' }}</button>
+    </div>
+  </form>
+</ui-modal>

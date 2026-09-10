@@ -1,0 +1,182 @@
+<div class="login-page">
+  <div class="login-panel">
+    <div class="brand">
+      <div class="brand-icon"><ui-icon name="heartPulse" [size]="26" [strokeWidth]="2.3" /></div>
+      <div>
+        <strong>Citas Médicas</strong>
+        <span>Sistema de Gestión</span>
+      </div>
+    </div>
+
+<div class="pulse-wrap" aria-hidden="true">
+  <svg
+    class="pulse-svg"
+    viewBox="0 0 320 40"
+    preserveAspectRatio="xMidYMid meet"
+  >
+    <path
+      class="pulse-line pulse-anim"
+      d="M5 20 H100 L112 6 L124 34 L136 20 H160 L168 12 L176 28 L184 20 H320"
+    />
+  </svg>
+</div>
+
+    
+    <h1>Bienvenido(a) de nuevo</h1>
+    <p class="lead">Inicia sesión para continuar con la gestión de pacientes, citas y expedientes clínicos.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-stack" novalidate>
+      @if (errorMsg()) {
+        <div class="alert">
+          <ui-icon name="alertCircle" [size]="17" />
+          <span>{{ errorMsg() }}</span>
+        </div>
+      }
+
+      <div class="field">
+        <label for="nombreUsuario">Usuario</label>
+        <div class="input-icon">
+          <ui-icon name="users" [size]="16" />
+          <input id="nombreUsuario" class="input" formControlName="nombreUsuario" placeholder="ej. amartinez" autocomplete="username" />
+        </div>
+        @if (form.controls.nombreUsuario.invalid && form.controls.nombreUsuario.touched) {
+          <span class="error-text">El usuario es obligatorio.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="contrasena">Contraseña</label>
+        <div class="input-icon">
+          <ui-icon name="key" [size]="16" />
+          <input
+            id="contrasena"
+            class="input"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="contrasena"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+          <button type="button" class="ghost-toggle" (click)="togglePassword()" [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+            <ui-icon [name]="showPassword() ? 'eyeOff' : 'eye'" [size]="16" />
+          </button>
+        </div>
+        @if (form.controls.contrasena.invalid && form.controls.contrasena.touched) {
+          <span class="error-text">La contraseña es obligatoria.</span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg btn-block" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner"></span> Verificando…
+        } @else {
+          Iniciar sesión
+        }
+      </button>
+    </form>
+
+    <div class="demo-block">
+      <span class="demo-label">Acceso rápido de demostración</span>
+      <div class="demo-users">
+        @for (u of demoUsers; track u.user) {
+          <button type="button" class="demo-chip" (click)="fillDemo(u.user)">{{ u.label }}</button>
+        }
+      </div>
+      <p class="hint">Cualquier contraseña funciona con el backend simulado (modo mock).</p>
+    </div>
+  </div>
+
+  <div class="login-side">
+    <div class="side-content">
+      <div class="side-layout">
+        <div class="side-main">
+
+           <span class="eyebrow"><span class="eyebrow-dot"></span> Plataforma médica</span>
+          <h2>Consulta clínica integral, de principio a fin</h2>
+          <p class="side-lead">Gestiona pacientes, citas y expedientes con una experiencia fluida, segura y humana.</p>
+          <br>
+
+          <!-- Animación 3D alineada con columna izquierda -->
+          <div class="scene" aria-hidden="true">
+            <div class="orb orb--1"></div>
+            <div class="orb orb--2"></div>
+            <div class="orb orb--3"></div>
+            <div class="grid-pattern"></div>
+            <div class="ring ring--1"></div>
+            <div class="ring ring--2"></div>
+
+            <div class="stage">
+              <div class="stage-shadow"></div>
+
+              <div class="glass-card card--main">
+                <div class="card-headline">
+                  <span class="mini-badge"><ui-icon name="calendar" [size]="12" /> Hoy · 09:30</span>
+                  <span class="pulse-dot"></span>
+                </div>
+                <div class="card-patient">
+                  <div class="avatar-sm">P1</div>
+                  <div>
+                    <strong>Paciente</strong>
+                    <span>Consulta · Dr. Rivas · Cardiología</span>
+                  </div>
+                  <span class="badge badge-success">Confirmada</span>
+                </div>
+                <div class="card-bar">
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+
+              <div class="glass-card card--sub card--calendar">
+                <div class="cal-head">
+                  <ui-icon name="calendar" [size]="14" />
+                  <strong>Agenda</strong>
+                  <span class="cal-live">En vivo</span>
+                </div>
+                <div class="cal-grid">
+                  <span class="cal-day">L</span><span class="cal-day">M</span><span class="cal-day active">X</span><span class="cal-day">J</span><span class="cal-day">V</span>
+                </div>
+                <div class="cal-slots">
+                  <span class="slot-mini">08:00</span>
+                  <span class="slot-mini active">09:30</span>
+                  <span class="slot-mini">11:00</span>
+                </div>
+              </div>
+
+              <div class="glass-card card--sub card--prescription">
+                <div class="rx-head">
+                  <ui-icon name="pill" [size]="14" />
+                  <strong>Receta</strong>
+                  <ui-icon name="checkCircle" [size]="14" />
+                </div>
+                <div class="rx-lines">
+                  <span></span><span></span><span class="short"></span>
+                </div>
+              </div>
+
+              <div class="float-icon icon--heart">
+                <ui-icon name="heartPulse" [size]="18" [strokeWidth]="2" />
+              </div>
+              <div class="float-icon icon--stetho">
+                <ui-icon name="stethoscope" [size]="18" [strokeWidth]="2" />
+              </div>
+              <div class="float-icon icon--pill">
+                <ui-icon name="pill" [size]="18" [strokeWidth]="2" />
+              </div>
+              <div class="float-icon icon--users">
+                <ui-icon name="users" [size]="16" [strokeWidth]="2" />
+              </div>
+            </div>
+          </div>
+
+         
+          
+        </div>
+        <ul>
+          <li style="--i:0"><span class="li-icon"><ui-icon name="users" [size]="18" /></span> Pacientes y contactos de emergencia</li>
+          <li style="--i:1"><span class="li-icon"><ui-icon name="calendar" [size]="18" /></span> Agenda, turnos y sala de espera</li>
+          <li style="--i:2"><span class="li-icon"><ui-icon name="stethoscope" [size]="18" /></span> Expediente clínico y atención médica</li>
+          <li style="--i:3"><span class="li-icon"><ui-icon name="pill" [size]="18" /></span> Prescripciones y catálogo de medicamentos</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

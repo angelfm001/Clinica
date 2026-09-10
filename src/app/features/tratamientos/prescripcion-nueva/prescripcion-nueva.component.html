@@ -1,0 +1,68 @@
+<ui-page-header icon="pill" title="Nueva prescripción" subtitle="Genera una receta médica a partir de la atención en curso." />
+
+@if (loading()) {
+  <div class="skeleton" style="height:300px;border-radius:14px"></div>
+} @else if (!atencion()) {
+  <div class="card card-pad">
+    <p class="muted">No se especificó una atención válida. Abre esta pantalla desde el botón "Generar Prescripción" de una ficha de atención.</p>
+  </div>
+} @else {
+  <div class="card card-pad">
+    <p class="section-label">Datos de la atención</p>
+    <div class="header-grid">
+      <div><span class="label">Paciente</span><p>{{ atencion()!.pacienteNombre }}</p></div>
+      <div><span class="label">Médico</span><p>{{ atencion()!.medicoNombre }}</p></div>
+      <div><span class="label">Motivo de consulta</span><p>{{ atencion()!.motivoConsulta }}</p></div>
+    </div>
+  </div>
+
+  <div class="card mt-20">
+    <div class="card-head"><span class="card-title">Medicamentos</span></div>
+    <div class="card-pad">
+      <div class="stack gap-14">
+        @for (fila of filas(); track $index) {
+          <div class="rx-row">
+            <div class="field grow autocomplete">
+              <label class="xs">Medicamento</label>
+              <input class="input" [value]="fila.query" (input)="buscarMedicamento($index, $any($event.target).value)" placeholder="Buscar medicamento…" />
+              @if (fila.sugerencias.length > 0) {
+                <div class="ac-results">
+                  @for (m of fila.sugerencias; track m.medicamentoId) {
+                    <button type="button" class="ac-item" (click)="seleccionarMedicamento($index, m)">
+                      <span class="small strong">{{ m.nombre }}</span>
+                      <span class="xs muted">{{ m.presentacion }} {{ m.concentracion }}</span>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+            <div class="field" style="width:100px"><label class="xs">Dosis</label><input class="input" [value]="fila.dosis" (input)="updateFila($index, 'dosis', $any($event.target).value)" placeholder="1 tab." /></div>
+            <div class="field" style="width:130px"><label class="xs">Frecuencia</label><input class="input" [value]="fila.frecuencia" (input)="updateFila($index, 'frecuencia', $any($event.target).value)" placeholder="c/8h" /></div>
+            <div class="field" style="width:110px"><label class="xs">Duración</label><input class="input" [value]="fila.duracion" (input)="updateFila($index, 'duracion', $any($event.target).value)" placeholder="7 días" /></div>
+            <div class="field" style="width:160px">
+              <label class="xs">Vía</label>
+              <select class="select" [value]="fila.viaAdministracion" (change)="updateFila($index, 'viaAdministracion', $any($event.target).value)">
+                @for (v of vias; track v) { <option [value]="v">{{ v }}</option> }
+              </select>
+            </div>
+            <button type="button" class="icon-btn danger" style="margin-top:20px" (click)="eliminarFila($index)"><ui-icon name="trash" [size]="15" /></button>
+          </div>
+        }
+      </div>
+
+      <button class="btn btn-secondary btn-sm mt-16" (click)="agregarFila()"><ui-icon name="plus" [size]="14" /> Agregar medicamento</button>
+
+      <div class="field mt-20">
+        <label>Indicaciones generales</label>
+        <textarea class="textarea" rows="2" [value]="indicacionesGenerales()" (input)="indicacionesGenerales.set($any($event.target).value)" placeholder="Indicaciones generales de la prescripción…"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="agregarFila()">Añadir otro</button>
+        <button type="button" class="btn btn-primary" [disabled]="!puedeGuardar || saving()" (click)="guardar()">
+          {{ saving() ? 'Guardando…' : 'Guardar Prescripción' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

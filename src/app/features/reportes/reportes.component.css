@@ -1,0 +1,13 @@
+.stats-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+.stats-row ui-stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-xs); }
+
+.bar-track { height: 10px; border-radius: var(--r-full); background: var(--surface-3); overflow: hidden; }
+.bar-fill { height: 100%; border-radius: var(--r-full); background: var(--brand-600); transition: width .5s ease; }
+.bar-fill.brand { background: linear-gradient(90deg, var(--brand-500), var(--brand-700)); }
+
+@media (max-width: 1200px) {
+  .stats-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

@@ -1,0 +1,53 @@
+<div class="toolbar">
+  <p class="grow muted small" style="align-self:center">Catálogo de espacios físicos de atención.</p>
+  <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nuevo consultorio</button>
+</div>
+
+<div class="table-wrap">
+  <table class="data">
+    <thead><tr><th>Nombre</th><th>Ubicación</th><th>Estado</th><th style="text-align:right">Acciones</th></tr></thead>
+    <tbody>
+      @for (c of consultorios(); track c.consultorioId) {
+        <tr>
+          <td class="strong">{{ c.nombre }}</td>
+          <td>{{ c.ubicacion || '—' }}</td>
+          <td>
+            <span class="badge" [class]="c.activo ? 'badge-success' : 'badge-neutral'">
+              <span class="badge-dot"></span>{{ c.activo ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td>
+            <div class="row-actions">
+              <button class="icon-btn" (click)="openEdit(c)" title="Editar"><ui-icon name="pencil" [size]="14" /></button>
+              <button class="icon-btn" [class.danger]="c.activo" (click)="toggleActivo(c)" [title]="c.activo ? 'Desactivar' : 'Activar'">
+                <ui-icon [name]="c.activo ? 'trash' : 'refresh'" [size]="14" />
+              </button>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  @if (!loading() && consultorios().length === 0) {
+    <ui-empty-state icon="building" title="Sin consultorios registrados" />
+  }
+</div>
+
+<ui-modal [open]="modalOpen()" [title]="editing() ? 'Editar consultorio' : 'Nuevo consultorio'" width="460px" (close)="modalOpen.set(false)">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="stack gap-16">
+      <div class="field">
+        <label>Nombre <span class="req">*</span></label>
+        <input class="input" formControlName="nombre" placeholder="ej. Consultorio 101" />
+      </div>
+      <div class="field">
+        <label>Ubicación</label>
+        <input class="input" formControlName="ubicacion" placeholder="ej. Piso 1" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="modalOpen.set(false)">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar' }}</button>
+    </div>
+  </form>
+</ui-modal>

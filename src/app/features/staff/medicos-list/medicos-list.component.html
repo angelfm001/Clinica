@@ -1,0 +1,56 @@
+<div class="toolbar">
+  <div class="search grow">
+    <ui-icon name="search" [size]="16" />
+    <input placeholder="Buscar por nombre o especialidad…" (input)="onSearchInput($any($event.target).value)" />
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nuevo médico</button>
+</div>
+
+<div class="table-wrap">
+  <table class="data">
+    <thead>
+      <tr><th>Médico</th><th>Especialidad</th><th>Licencia</th><th>Teléfono</th><th>Estado</th><th style="text-align:right">Acciones</th></tr>
+    </thead>
+    <tbody>
+      @if (loading()) {
+        <ui-skeleton-rows [rows]="6" [cols]="6" />
+      } @else {
+        @for (m of medicos(); track m.medicoId) {
+          <tr>
+            <td>
+              <div class="row gap-10">
+                <span class="avatar" style="width:36px;height:36px;font-size:12px">{{ (m.nombres + ' ' + m.apellidos) | iniciales }}</span>
+                <span class="strong">Dr(a). {{ m.nombres }} {{ m.apellidos }}</span>
+              </div>
+            </td>
+            <td><span class="chip brand">{{ m.especialidadNombre }}</span></td>
+            <td>{{ m.licencia }}</td>
+            <td>{{ m.telefono || '—' }}</td>
+            <td>
+              <span class="badge" [class]="m.activo ? 'badge-success' : 'badge-neutral'">
+                <span class="badge-dot"></span>{{ m.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn" (click)="goHorarios(m)" title="Horarios"><ui-icon name="calendar" [size]="15" /></button>
+                <button class="icon-btn" (click)="openEdit(m)" title="Editar"><ui-icon name="pencil" [size]="15" /></button>
+                <button class="icon-btn danger" (click)="deactivate(m)" title="Desactivar"><ui-icon name="trash" [size]="15" /></button>
+              </div>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+
+  @if (!loading() && medicos().length === 0) {
+    <ui-empty-state icon="stethoscope" title="No se encontraron médicos" subtitle="Ajusta la búsqueda o registra un nuevo médico." />
+  }
+</div>
+
+@if (!loading() && medicos().length > 0) {
+  <ui-pagination [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)" />
+}
+
+<app-medico-form-modal [open]="modalOpen()" [medico]="editing()" [especialidades]="especialidades()" (close)="modalOpen.set(false)" (saved)="onSaved()" />

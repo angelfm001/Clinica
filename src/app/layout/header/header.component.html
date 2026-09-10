@@ -1,0 +1,61 @@
+<header class="topbar no-print">
+  <button class="menu-btn" type="button" (click)="menuClick.emit()" aria-label="Abrir menú">
+    <ui-icon name="menu" [size]="21" />
+  </button>
+
+  <div class="search-box">
+    <ui-icon name="search" [size]="17" />
+    <input id="global-search" type="text" placeholder="Buscar pacientes, citas, documentos…" />
+    <kbd>Ctrl K</kbd>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="actions">
+    <button class="icon-btn bare" type="button" (click)="theme.toggle()" [attr.aria-label]="'Cambiar tema'">
+      <ui-icon [name]="theme.theme() === 'dark' ? 'sun' : 'moon'" [size]="19" />
+    </button>
+
+    <div class="popover-anchor">
+      <button class="icon-btn bare" type="button" (click)="toggleNotif()" aria-label="Notificaciones">
+        <ui-icon name="bell" [size]="19" />
+        @if (recordatorios.length) { <span class="dot">{{ recordatorios.length }}</span> }
+      </button>
+      @if (notifOpen()) {
+        <div class="popover">
+          <div class="popover-title">Recordatorios</div>
+          @for (r of recordatorios; track r.texto) {
+            <div class="notif-item">
+              <span class="notif-icon"><ui-icon [name]="r.icon" [size]="15" /></span>
+              <div>
+                <p>{{ r.texto }}</p>
+                <small>{{ r.hace }}</small>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <button class="icon-btn bare" type="button" aria-label="Ayuda">
+      <ui-icon name="help" [size]="19" />
+    </button>
+
+    <div class="popover-anchor">
+      <button class="profile-btn" type="button" (click)="toggleProfile()">
+        <span class="avatar" style="width:36px;height:36px;font-size:12.5px">{{ auth.usuario()?.nombreCompleto | iniciales }}</span>
+        <span class="profile-text">
+          <b>{{ auth.usuario()?.nombreCompleto }}</b>
+          <small>{{ auth.usuario()?.rol }}</small>
+        </span>
+        <ui-icon name="chevronDown" [size]="15" />
+      </button>
+      @if (profileOpen()) {
+        <div class="popover profile-menu">
+          <button (click)="goProfile()"><ui-icon name="users" [size]="16" />Mi perfil</button>
+          <button (click)="logout()"><ui-icon name="logout" [size]="16" />Cerrar sesión</button>
+        </div>
+      }
+    </div>
+  </div>
+</header>

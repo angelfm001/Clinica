@@ -1,0 +1,10 @@
+.header-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.header-grid p { font-size: 13.5px; font-weight: 600; margin-top: 3px; }
+
+.rx-row { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+
+@media (max-width: 900px) {
+  .header-grid { grid-template-columns: 1fr; gap: 12px; }
+  .rx-row { flex-direction: column; }
+  .rx-row > .field { width: 100% !important; }
+}

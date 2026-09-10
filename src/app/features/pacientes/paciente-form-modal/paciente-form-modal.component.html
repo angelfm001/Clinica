@@ -1,0 +1,120 @@
+<ui-modal [open]="open()" [title]="isEdit ? 'Editar paciente' : 'Nuevo paciente'" width="720px" (close)="close.emit()">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <p class="section-label">Datos personales</p>
+    <div class="form-grid">
+      <div class="field">
+        <label>Nombres <span class="req">*</span></label>
+        <input class="input" formControlName="nombres" placeholder="Ingrese los nombres" />
+        @if (form.controls.nombres.invalid && form.controls.nombres.touched) {
+          <span class="error-text">Los nombres son obligatorios.</span>
+        }
+      </div>
+      <div class="field">
+        <label>Apellidos <span class="req">*</span></label>
+        <input class="input" formControlName="apellidos" placeholder="Ingrese los apellidos" />
+        @if (form.controls.apellidos.invalid && form.controls.apellidos.touched) {
+          <span class="error-text">Los apellidos son obligatorios.</span>
+        }
+      </div>
+      <div class="field">
+        <label>Tipo de documento <span class="req">*</span></label>
+        <select class="select" formControlName="tipoDocumento">
+          <option value="DUI">DUI</option>
+          <option value="Pasaporte">Pasaporte</option>
+          <option value="NIT">NIT</option>
+          <option value="Carnet de Minoridad">Carnet de Minoridad</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Número de documento <span class="req">*</span></label>
+        <input class="input" formControlName="numeroDocumento" placeholder="00000000-0" />
+        @if (form.controls.numeroDocumento.invalid && form.controls.numeroDocumento.touched) {
+          <span class="error-text">El número de documento es obligatorio.</span>
+        }
+      </div>
+      <div class="field">
+        <label>Fecha de nacimiento <span class="req">*</span></label>
+        <input class="input" type="date" formControlName="fechaNacimiento" />
+        @if (form.controls.fechaNacimiento.invalid && form.controls.fechaNacimiento.touched) {
+          <span class="error-text">La fecha de nacimiento es obligatoria.</span>
+        }
+      </div>
+      <div class="field">
+        <label>Sexo <span class="req">*</span></label>
+        <div class="radio-row" style="padding-top:6px">
+          <label class="radio-pill" [class.checked]="form.controls.sexo.value === 'M'">
+            <input type="radio" formControlName="sexo" value="M" /> Masculino
+          </label>
+          <label class="radio-pill" [class.checked]="form.controls.sexo.value === 'F'">
+            <input type="radio" formControlName="sexo" value="F" /> Femenino
+          </label>
+          <label class="radio-pill" [class.checked]="form.controls.sexo.value === 'O'">
+            <input type="radio" formControlName="sexo" value="O" /> Otro
+          </label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Estado civil</label>
+        <select class="select" formControlName="estadoCivil">
+          <option value="">Seleccione</option>
+          <option value="Soltero">Soltero(a)</option>
+          <option value="Casado">Casado(a)</option>
+          <option value="Divorciado">Divorciado(a)</option>
+          <option value="Viudo">Viudo(a)</option>
+          <option value="Union libre">Unión libre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tipo de sangre</label>
+        <select class="select" formControlName="tipoSangre">
+          <option value="">Seleccione</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="section-label">Contacto</p>
+    <div class="form-grid">
+      <div class="field">
+        <label>Teléfono</label>
+        <input class="input" formControlName="telefono" placeholder="0000-0000" />
+      </div>
+      <div class="field">
+        <label>Teléfono secundario</label>
+        <input class="input" formControlName="telefonoSecundario" placeholder="0000-0000" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input class="input" type="email" formControlName="email" placeholder="correo@ejemplo.com" />
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <span class="error-text">Ingrese un correo válido.</span>
+        }
+      </div>
+      <div class="field">
+        <label>Ocupación</label>
+        <input class="input" formControlName="ocupacion" placeholder="Ocupación" />
+      </div>
+      <div class="field full">
+        <label>Dirección</label>
+        <input class="input" formControlName="direccion" placeholder="Dirección del paciente" />
+      </div>
+      <div class="field">
+        <label>Ciudad</label>
+        <input class="input" formControlName="ciudad" placeholder="Ciudad" />
+      </div>
+      <div class="field">
+        <label>País</label>
+        <input class="input" formControlName="pais" placeholder="País" />
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="close.emit()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">
+        {{ saving() ? 'Guardando…' : (isEdit ? 'Guardar cambios' : 'Guardar paciente') }}
+      </button>
+    </div>
+  </form>
+</ui-modal>

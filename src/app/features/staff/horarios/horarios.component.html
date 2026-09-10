@@ -1,0 +1,57 @@
+<div class="back-row">
+  <a routerLink="/staff/medicos" class="btn btn-ghost btn-sm"><ui-icon name="arrowLeft" [size]="15" /> Volver a médicos</a>
+</div>
+
+<div class="row between wrap gap-16" style="margin-bottom:18px">
+  <div>
+    <h1 style="font-size:22px">
+      Horarios de @if (medico(); as m) { Dr(a). {{ m.nombres }} {{ m.apellidos }} }
+    </h1>
+    <p class="muted small mt-8">Disponibilidad semanal configurada para este médico.</p>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Agregar horario</button>
+</div>
+
+<div class="card card-pad">
+  <div class="week-grid">
+    <div class="hours-col">
+      <div class="day-head">&nbsp;</div>
+      @for (h of horas; track h) {
+        <div class="hour-label">{{ h }}:00</div>
+      }
+    </div>
+    @for (d of dias; track d.value) {
+      <div class="day-col">
+        <div class="day-head">{{ d.label }}</div>
+        <div class="day-body" [style.height.px]="horas.length * 56">
+          @for (h of horas; track h) { <div class="hour-row"></div> }
+          @for (b of bloquesDelDia(d.value); track b.horario.horarioId) {
+            <button
+              type="button"
+              class="block"
+              [style.top.%]="b.top"
+              [style.height.%]="b.height"
+              (click)="openEdit(b.horario)"
+              [title]="'Editar horario'"
+            >
+              <b>{{ b.horario.horaInicio }} – {{ b.horario.horaFin }}</b>
+              <span>{{ nombreConsultorio(b.horario.consultorioId) }}</span>
+              <span class="remove" (click)="eliminar(b.horario); $event.stopPropagation()">
+                <ui-icon name="x" [size]="12" />
+              </span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<app-horario-form-modal
+  [open]="modalOpen()"
+  [medicoId]="medicoId"
+  [consultorios]="consultorios()"
+  [horario]="editing()"
+  (close)="modalOpen.set(false)"
+  (saved)="onSaved()"
+/>

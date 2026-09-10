@@ -1,0 +1,48 @@
+<div class="toolbar">
+  <p class="grow muted small" style="align-self:center">Catálogo de especialidades médicas disponibles en la clínica.</p>
+  <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nueva especialidad</button>
+</div>
+
+<div class="table-wrap">
+  <table class="data">
+    <thead><tr><th>Nombre</th><th>Estado</th><th style="text-align:right">Acciones</th></tr></thead>
+    <tbody>
+      @for (e of especialidades(); track e.especialidadId) {
+        <tr>
+          <td class="strong">{{ e.nombre }}</td>
+          <td>
+            <span class="badge" [class]="e.activo ? 'badge-success' : 'badge-neutral'">
+              <span class="badge-dot"></span>{{ e.activo ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td>
+            <div class="row-actions">
+              <button class="icon-btn" (click)="openEdit(e)" title="Editar"><ui-icon name="pencil" [size]="14" /></button>
+              <button class="icon-btn" [class.danger]="e.activo" (click)="toggleActivo(e)" [title]="e.activo ? 'Desactivar' : 'Activar'">
+                <ui-icon [name]="e.activo ? 'trash' : 'refresh'" [size]="14" />
+              </button>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  @if (!loading() && especialidades().length === 0) {
+    <ui-empty-state icon="layers" title="Sin especialidades registradas" />
+  }
+</div>
+
+<ui-modal [open]="modalOpen()" [title]="editing() ? 'Editar especialidad' : 'Nueva especialidad'" width="480px" (close)="modalOpen.set(false)">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="stack gap-16">
+      <div class="field">
+        <label>Nombre <span class="req">*</span></label>
+        <input class="input" formControlName="nombre" placeholder="ej. Cardiología" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="modalOpen.set(false)">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar' }}</button>
+    </div>
+  </form>
+</ui-modal>

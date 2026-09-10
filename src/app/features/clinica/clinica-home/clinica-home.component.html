@@ -1,0 +1,67 @@
+<ui-page-header icon="stethoscope" title="Clínica" subtitle="Atención médica, expedientes y seguimiento clínico de pacientes." />
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head"><span class="card-title">Pacientes en atención ahora</span></div>
+    <div class="card-body stack gap-10">
+      @if (loading()) {
+        @for (i of [1,2]; track i) { <div class="skeleton" style="height:60px;border-radius:10px"></div> }
+      } @else if (enAtencion().length === 0) {
+        <ui-empty-state icon="stethoscope" title="Nadie en atención en este momento" />
+      } @else {
+        @for (c of enAtencion(); track c.citaId) {
+          <button type="button" class="clinical-row" (click)="irAAtencion(c)">
+            <span class="avatar" style="width:36px;height:36px;font-size:12px">{{ c.pacienteNombre | iniciales }}</span>
+            <span class="grow">
+              <span class="strong small" style="display:block">{{ c.pacienteNombre }}</span>
+              <span class="xs muted">{{ c.medicoNombre }} · {{ c.hora }}</span>
+            </span>
+            <span class="badge badge-purple">En atención</span>
+          </button>
+        }
+      }
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="card-title">Próximas hoy</span></div>
+    <div class="card-body stack gap-10">
+      @if (!loading() && pendientes().length === 0) {
+        <ui-empty-state icon="calendar" title="Sin más citas pendientes hoy" />
+      }
+      @for (c of pendientes(); track c.citaId) {
+        <div class="clinical-row static">
+          <span class="avatar" style="width:36px;height:36px;font-size:12px">{{ c.pacienteNombre | iniciales }}</span>
+          <span class="grow">
+            <span class="strong small" style="display:block">{{ c.pacienteNombre }}</span>
+            <span class="xs muted">{{ c.medicoNombre }} · {{ c.hora }}</span>
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="card mt-20">
+  <div class="card-head"><span class="card-title">Buscar expediente de un paciente</span></div>
+  <div class="card-body">
+    <div class="search full-search">
+      <ui-icon name="search" [size]="16" />
+      <input placeholder="Buscar por nombre o documento…" (input)="buscar($any($event.target).value)" />
+    </div>
+    @if (resultados().length > 0) {
+      <div class="stack gap-8 mt-16">
+        @for (p of resultados(); track p.pacienteId) {
+          <button type="button" class="clinical-row" (click)="irAExpediente(p)">
+            <span class="avatar" style="width:34px;height:34px;font-size:11.5px">{{ (p.nombres + ' ' + p.apellidos) | iniciales }}</span>
+            <span class="grow">
+              <span class="strong small" style="display:block">{{ p.nombres }} {{ p.apellidos }}</span>
+              <span class="xs muted">{{ p.tipoDocumento }} {{ p.numeroDocumento }}</span>
+            </span>
+            <ui-icon name="arrowRight" [size]="15" />
+          </button>
+        }
+      </div>
+    }
+  </div>
+</div>

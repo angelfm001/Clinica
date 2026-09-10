@@ -1,0 +1,30 @@
+.back-row { margin-bottom: 14px; }
+
+.patient-hero {
+  display: flex; align-items: center; gap: 20px; padding: 22px;
+  flex-wrap: wrap;
+}
+.hero-avatar { width: 66px; height: 66px; font-size: 20px; flex: none; }
+.patient-hero h1 { font-size: 21px; }
+.hero-meta {
+  display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px;
+  color: var(--text-muted); font-size: 12.5px;
+}
+.hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.tab-count {
+  background: var(--brand-100); color: var(--brand-700);
+  border-radius: var(--r-full); font-size: 10.5px; font-weight: 700;
+  padding: 1px 7px;
+}
+[data-theme='dark'] .tab-count { background: rgba(9, 107, 224, .25); color: var(--brand-300); }
+
+.info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 28px; }
+.info-grid .label { font-size: 11.5px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+.info-grid p { margin-top: 4px; font-size: 13.5px; }
+
+@media (max-width: 700px) {
+  .info-grid { grid-template-columns: 1fr; }
+  .patient-hero { flex-direction: column; align-items: flex-start; }
+}

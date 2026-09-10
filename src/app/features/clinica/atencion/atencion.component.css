@@ -1,0 +1,26 @@
+.back-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+
+.atencion-header { display: flex; align-items: center; gap: 16px; padding: 20px; }
+.atencion-header h1 { font-size: 19px; }
+
+.tab-count {
+  background: var(--brand-100); color: var(--brand-700); border-radius: var(--r-full);
+  font-size: 10.5px; font-weight: 700; padding: 1px 7px;
+}
+[data-theme='dark'] .tab-count { background: rgba(9, 107, 224, .25); color: var(--brand-300); }
+
+.vitals-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.imc-box {
+  border: 1px dashed var(--border-strong); border-radius: var(--r-md);
+  padding: 10px 12px; font-weight: 700; font-size: 15px; color: var(--brand-700);
+  background: var(--brand-50);
+}
+[data-theme='dark'] .imc-box { background: rgba(9, 107, 224, .12); color: var(--brand-300); }
+
+.mb-16 { margin-bottom: 16px; }
+
+.final-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+
+@media (max-width: 800px) {
+  .vitals-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

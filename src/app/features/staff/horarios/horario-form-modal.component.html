@@ -1,0 +1,32 @@
+<ui-modal [open]="open()" [title]="isEdit ? 'Editar horario' : 'Agregar horario'" width="480px" (close)="close.emit()">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="stack gap-16">
+      <div class="field">
+        <label>Día de la semana <span class="req">*</span></label>
+        <select class="select" formControlName="diaSemana">
+          @for (d of dias; track d.value) { <option [value]="d.value">{{ d.label }}</option> }
+        </select>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Hora inicio <span class="req">*</span></label>
+          <input class="input" type="time" formControlName="horaInicio" />
+        </div>
+        <div class="field">
+          <label>Hora fin <span class="req">*</span></label>
+          <input class="input" type="time" formControlName="horaFin" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Consultorio <span class="req">*</span></label>
+        <select class="select" formControlName="consultorioId">
+          @for (c of consultorios(); track c.consultorioId) { <option [value]="c.consultorioId">{{ c.nombre }}</option> }
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="close.emit()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar' }}</button>
+    </div>
+  </form>
+</ui-modal>

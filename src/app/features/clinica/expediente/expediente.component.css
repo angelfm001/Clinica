@@ -1,0 +1,27 @@
+.back-row { margin-bottom: 14px; }
+
+.patient-hero { display: flex; align-items: center; gap: 18px; padding: 20px; }
+.hero-avatar { width: 58px; height: 58px; font-size: 18px; flex: none; }
+.patient-hero h1 { font-size: 19px; }
+
+.expediente-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+
+.collapsible-head { cursor: pointer; }
+.collapsible-head:hover { background: var(--surface-2); }
+
+.record-row {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 10px 0; border-bottom: 1px solid var(--border-soft); font-size: 13px;
+}
+.record-row:last-of-type { border-bottom: 0; }
+
+.atencion-expand {
+  background: var(--surface-2); border-radius: var(--r-md); padding: 12px 14px; margin-top: 4px;
+}
+
+.rx-card { border: 1px solid var(--border-soft); border-radius: var(--r-md); overflow: hidden; }
+.rx-detail { padding: 0 14px 14px; }
+
+@media (max-width: 950px) {
+  .expediente-grid { grid-template-columns: 1fr; }
+}

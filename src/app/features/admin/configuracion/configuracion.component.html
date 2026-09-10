@@ -1,0 +1,51 @@
+<ui-page-header icon="settings" title="Configuración" subtitle="Apariencia y estado de conexión con los microservicios." />
+
+<div class="grid-2">
+  <div class="card card-pad">
+    <p class="section-label">Apariencia</p>
+    <div class="row between" style="padding:6px 0">
+      <div>
+        <p class="strong small">Tema de la interfaz</p>
+        <p class="xs muted mt-8">Cambia entre modo claro y oscuro para toda la aplicación.</p>
+      </div>
+      <div class="row gap-8">
+        <button class="btn btn-sm" [class.btn-primary]="theme.theme() === 'light'" [class.btn-secondary]="theme.theme() !== 'light'" (click)="theme.theme.set('light')">
+          <ui-icon name="sun" [size]="14" /> Claro
+        </button>
+        <button class="btn btn-sm" [class.btn-primary]="theme.theme() === 'dark'" [class.btn-secondary]="theme.theme() !== 'dark'" (click)="theme.theme.set('dark')">
+          <ui-icon name="moon" [size]="14" /> Oscuro
+        </button>
+      </div>
+    </div>
+
+    <div class="divider mt-16"></div>
+
+    <div class="row between mt-16">
+      <div>
+        <p class="strong small">Sesión local</p>
+        <p class="xs muted mt-8">Elimina el token guardado en este navegador (equivalente a forzar un cierre de sesión).</p>
+      </div>
+      <button class="btn btn-secondary btn-sm" (click)="clearCache()">Limpiar sesión</button>
+    </div>
+  </div>
+
+  <div class="card card-pad">
+    <p class="section-label">Conexión con microservicios</p>
+    <div class="row between" style="padding:8px 0">
+      <span class="small">Modo de datos</span>
+      <span class="badge" [class]="useMock ? 'badge-warning' : 'badge-success'">
+        <span class="badge-dot"></span>{{ useMock ? 'Simulado (mock)' : 'Backend real' }}
+      </span>
+    </div>
+    <div class="divider mt-8"></div>
+    <div class="stack gap-10 mt-16">
+      @for (s of servicios; track s.nombre) {
+        <div class="row between service-row">
+          <span class="small strong">{{ s.nombre }}</span>
+          <span class="mono xs muted">{{ s.url }}</span>
+        </div>
+      }
+    </div>
+    <p class="hint mt-16">Las URLs se configuran en <code>environment.ts</code>. Con <code>useMock: false</code>, la app consume los microservicios reales sin cambios en los componentes.</p>
+  </div>
+</div>

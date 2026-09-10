@@ -1,0 +1,55 @@
+@if (cita(); as c) {
+  <div class="backdrop no-print" (click)="close.emit()"></div>
+  <aside class="panel no-print">
+    <div class="panel-head">
+      <h2>Detalle de cita</h2>
+      <button class="icon-btn bare" (click)="close.emit()"><ui-icon name="x" [size]="19" /></button>
+    </div>
+
+    <div class="panel-body">
+      <div class="row between">
+        <span class="mono muted small">CIT-{{ c.citaId }}</span>
+        <ui-estado-cita-badge [estado]="c.estado" />
+      </div>
+
+      <div class="info-block">
+        <span class="ib-icon"><ui-icon name="users" [size]="16" /></span>
+        <div><span class="label">Paciente</span><p>{{ c.pacienteNombre }}</p><span class="xs muted">{{ c.pacienteDocumento }}</span></div>
+      </div>
+      <div class="info-block">
+        <span class="ib-icon"><ui-icon name="stethoscope" [size]="16" /></span>
+        <div><span class="label">Médico</span><p>{{ c.medicoNombre }}</p><span class="xs muted">{{ c.especialidadNombre }}</span></div>
+      </div>
+      <div class="info-block">
+        <span class="ib-icon"><ui-icon name="mapPin" [size]="16" /></span>
+        <div><span class="label">Consultorio</span><p>{{ c.consultorioNombre }}</p></div>
+      </div>
+      <div class="info-block">
+        <span class="ib-icon"><ui-icon name="calendar" [size]="16" /></span>
+        <div><span class="label">Fecha y hora</span><p>{{ c.fecha }} · {{ c.hora }}</p></div>
+      </div>
+      @if (c.motivo) {
+        <div class="info-block">
+          <span class="ib-icon"><ui-icon name="fileText" [size]="16" /></span>
+          <div><span class="label">Motivo de consulta</span><p>{{ c.motivo }}</p></div>
+        </div>
+      }
+    </div>
+
+    <div class="panel-actions">
+      @if (c.estado === 'Programada') {
+        <button class="btn btn-secondary btn-block" (click)="confirmar()"><ui-icon name="check" [size]="15" /> Confirmar</button>
+      }
+      @if (c.estado === 'Confirmada') {
+        <button class="btn btn-primary btn-block" (click)="iniciarAtencion()"><ui-icon name="stethoscope" [size]="15" /> Cambiar a En atención</button>
+      }
+      @if (c.estado === 'En atencion' && auth.hasRol('Medico', 'Administrador')) {
+        <button class="btn btn-primary btn-block" (click)="irAAtencion()"><ui-icon name="arrowRight" [size]="15" /> Ir a Atención Clínica</button>
+        <button class="btn btn-success btn-block" (click)="marcarAtendida()"><ui-icon name="checkCircle" [size]="15" /> Marcar como Atendida</button>
+      }
+      @if (!['Cancelada', 'Atendida'].includes(c.estado)) {
+        <button class="btn btn-danger btn-block" (click)="cancelar()"><ui-icon name="x" [size]="15" /> Cancelar cita</button>
+      }
+    </div>
+  </aside>
+}

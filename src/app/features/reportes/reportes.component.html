@@ -1,0 +1,53 @@
+<ui-page-header icon="chart" title="Reportes" subtitle="Indicadores operativos de los últimos 30 días y próximos 30 días." />
+
+<div class="stats-row">
+  <ui-stat-card icon="calendar" tone="brand" label="Citas en el periodo" [value]="citas().length" />
+  <ui-stat-card icon="checkCircle" tone="success" label="Tasa de atención" [value]="tasaAtencion() + '%'" note="Citas marcadas como atendidas" />
+  <ui-stat-card icon="alertTriangle" tone="danger" label="Cancelaciones / inasistencias" [value]="tasaCancelacion() + '%'" />
+  <ui-stat-card icon="stethoscope" tone="purple" label="Médicos activos" [value]="medicosActivos()" />
+  <ui-stat-card icon="users" tone="teal" label="Pacientes registrados" [value]="pacientesTotal()" />
+</div>
+
+<div class="grid-2 mt-20">
+  <div class="card card-pad">
+    <p class="section-label">Citas por estado</p>
+    @if (loading()) {
+      <div class="skeleton" style="height:220px;border-radius:10px"></div>
+    } @else if (porEstado().length === 0) {
+      <p class="muted small">Sin datos suficientes en el periodo.</p>
+    } @else {
+      <div class="stack gap-14">
+        @for (b of porEstado(); track b.estado) {
+          <div>
+            <div class="row between xs" style="margin-bottom:6px">
+              <span class="strong small">{{ b.label }}</span>
+              <span class="muted">{{ b.total }} ({{ b.pct }}%)</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill" [style.width.%]="b.pct" [style.background]="b.color"></div></div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="card card-pad">
+    <p class="section-label">Carga de citas por médico</p>
+    @if (loading()) {
+      <div class="skeleton" style="height:220px;border-radius:10px"></div>
+    } @else if (porMedico().length === 0) {
+      <p class="muted small">Sin datos suficientes en el periodo.</p>
+    } @else {
+      <div class="stack gap-14">
+        @for (b of porMedico(); track b.nombre) {
+          <div>
+            <div class="row between xs" style="margin-bottom:6px">
+              <span class="strong small">{{ b.nombre }}</span>
+              <span class="muted">{{ b.total }} cita(s)</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill brand" [style.width.%]="b.pct"></div></div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

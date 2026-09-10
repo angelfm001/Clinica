@@ -1,0 +1,117 @@
+@if (loading()) {
+  <div class="stack gap-16">
+    <div class="skeleton" style="height: 100px; border-radius: 14px;"></div>
+    <div class="skeleton" style="height: 300px; border-radius: 14px;"></div>
+  </div>
+} @else if (paciente(); as p) {
+  <div class="back-row">
+    <a routerLink="/pacientes" class="btn btn-ghost btn-sm"><ui-icon name="arrowLeft" [size]="15" /> Volver a pacientes</a>
+  </div>
+
+  <div class="patient-hero card">
+    <span class="avatar hero-avatar">{{ (p.nombres + ' ' + p.apellidos) | iniciales }}</span>
+    <div class="grow">
+      <div class="row gap-10 wrap">
+        <h1>{{ p.nombres }} {{ p.apellidos }}</h1>
+        <span class="badge" [class]="p.activo ? 'badge-success' : 'badge-neutral'">
+          <span class="badge-dot"></span>{{ p.activo ? 'Activo' : 'Inactivo' }}
+        </span>
+      </div>
+      <div class="hero-meta">
+        <span><ui-icon name="fileText" [size]="14" /> {{ p.codigoPaciente }}</span>
+        <span><ui-icon name="clock" [size]="14" /> {{ p.fechaNacimiento | edad }}</span>
+        <span><ui-icon name="phone" [size]="14" /> {{ p.telefono || 'Sin teléfono' }}</span>
+        <span><ui-icon name="mail" [size]="14" /> {{ p.email || 'Sin correo' }}</span>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <button class="btn btn-secondary" (click)="openEdit()"><ui-icon name="pencil" [size]="15" /> Editar</button>
+      <button class="btn btn-primary" (click)="goExpediente()"><ui-icon name="stethoscope" [size]="15" /> Expediente clínico</button>
+    </div>
+  </div>
+
+  <div class="card mt-20">
+    <div class="tabs no-print">
+      <button class="tab" [class.active]="tab() === 'general'" (click)="setTab('general')">
+        <ui-icon name="users" [size]="15" /> Información general
+      </button>
+      <button class="tab" [class.active]="tab() === 'contactos'" (click)="setTab('contactos')">
+        <ui-icon name="phone" [size]="15" /> Contactos de emergencia
+        @if (contactos().length) { <span class="tab-count">{{ contactos().length }}</span> }
+      </button>
+      <button class="tab" [class.active]="tab() === 'historial'" (click)="setTab('historial')">
+        <ui-icon name="clipboard" [size]="15" /> Historial clínico
+      </button>
+    </div>
+
+    <div class="card-pad">
+      @switch (tab()) {
+        @case ('general') {
+          <div class="tab-panel info-grid">
+            <div><span class="label">Tipo y número de documento</span><p>{{ p.tipoDocumento }} {{ p.numeroDocumento }}</p></div>
+            <div><span class="label">Fecha de nacimiento</span><p>{{ p.fechaNacimiento }}</p></div>
+            <div><span class="label">Sexo</span><p>{{ p.sexo === 'M' ? 'Masculino' : p.sexo === 'F' ? 'Femenino' : 'Otro' }}</p></div>
+            <div><span class="label">Estado civil</span><p>{{ p.estadoCivil || '—' }}</p></div>
+            <div><span class="label">Tipo de sangre</span><p>{{ p.tipoSangre || '—' }}</p></div>
+            <div><span class="label">Ocupación</span><p>{{ p.ocupacion || '—' }}</p></div>
+            <div><span class="label">Teléfono secundario</span><p>{{ p.telefonoSecundario || '—' }}</p></div>
+            <div><span class="label">Dirección</span><p>{{ p.direccion || '—' }}, {{ p.ciudad }}, {{ p.pais }}</p></div>
+          </div>
+        }
+        @case ('contactos') {
+          <div class="tab-panel">
+            <div class="row between mt-8" style="margin-bottom:14px">
+              <p class="muted small">Ordenados por prioridad de contacto.</p>
+              <button class="btn btn-primary btn-sm" (click)="openNewContacto()"><ui-icon name="plus" [size]="14" /> Agregar contacto</button>
+            </div>
+            @if (contactos().length === 0) {
+              <ui-empty-state icon="phone" title="Sin contactos de emergencia" subtitle="Agrega al menos un contacto." />
+            } @else {
+              <div class="table-wrap">
+                <table class="data">
+                  <thead><tr><th>Nombre</th><th>Parentesco</th><th>Teléfono</th><th>Prioridad</th><th style="text-align:right">Acciones</th></tr></thead>
+                  <tbody>
+                    @for (c of contactos(); track c.contactoEmergenciaId) {
+                      <tr>
+                        <td class="strong">{{ c.nombreCompleto }}</td>
+                        <td>{{ c.parentesco || '—' }}</td>
+                        <td>{{ c.telefono }}</td>
+                        <td><span class="chip brand">Prioridad {{ c.prioridad }}</span></td>
+                        <td>
+                          <div class="row-actions">
+                            <button class="icon-btn" (click)="openEditContacto(c)" title="Editar"><ui-icon name="pencil" [size]="14" /></button>
+                            <button class="icon-btn danger" (click)="deleteContacto(c)" title="Eliminar"><ui-icon name="trash" [size]="14" /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        }
+        @case ('historial') {
+          <div class="tab-panel">
+            <ui-empty-state icon="stethoscope" title="Historial clínico completo" subtitle="Consulta expediente, antecedentes, alergias y atenciones anteriores.">
+              <button class="btn btn-primary btn-sm mt-12" (click)="goExpediente()">
+                <ui-icon name="arrowRight" [size]="14" /> Ir al expediente clínico
+              </button>
+            </ui-empty-state>
+          </div>
+        }
+      }
+    </div>
+  </div>
+} @else {
+  <ui-empty-state icon="users" title="Paciente no encontrado" />
+}
+
+<app-paciente-form-modal [open]="editModalOpen()" [paciente]="paciente()" (close)="editModalOpen.set(false)" (saved)="onSaved()" />
+<app-contacto-form-modal
+  [open]="contactoModalOpen()"
+  [pacienteId]="paciente()?.pacienteId ?? 0"
+  [contacto]="editingContacto()"
+  (close)="contactoModalOpen.set(false)"
+  (saved)="loadContactos()"
+/>

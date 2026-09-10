@@ -1,0 +1,22 @@
+.app-shell { min-height: 100vh; }
+
+.main {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  transition: margin-left var(--t);
+}
+.main.collapsed { margin-left: 76px; }
+
+.content { padding: 26px 28px 40px; flex: 1; }
+
+.scrim {
+  display: none;
+  position: fixed; inset: 0; background: rgba(10, 20, 38, .5); z-index: 35;
+}
+
+@media (max-width: 900px) {
+  .main, .main.collapsed { margin-left: 0; }
+  .scrim { display: block; }
+  .content { padding: 18px 16px 32px; }
+}

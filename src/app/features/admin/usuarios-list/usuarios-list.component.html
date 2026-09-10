@@ -1,0 +1,93 @@
+<ui-page-header icon="shield" title="Usuarios y Roles" subtitle="Cuentas de acceso al sistema y su rol asignado.">
+  <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nuevo usuario</button>
+</ui-page-header>
+
+<div class="card">
+  <div class="toolbar">
+    <div class="search grow">
+      <ui-icon name="search" [size]="16" />
+      <input placeholder="Buscar por nombre o usuario…" (input)="onSearchInput($any($event.target).value)" />
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>Usuario</th><th>Nombre completo</th><th>Rol</th><th>Estado</th><th>Último acceso</th><th style="text-align:right">Acciones</th></tr></thead>
+      <tbody>
+        @if (loading()) {
+          <ui-skeleton-rows [rows]="pageSize()" [cols]="6" />
+        } @else {
+          @for (u of usuarios(); track u.usuarioId) {
+            <tr>
+              <td>
+                <div class="row gap-10">
+                  <span class="avatar" style="width:34px;height:34px;font-size:11.5px">{{ u.nombreCompleto | iniciales }}</span>
+                  <span class="mono small">&#64;{{ u.nombreUsuario }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="strong" style="display:block">{{ u.nombreCompleto }}</span>
+                @if (medicoVinculado(u); as m) { <span class="xs muted">{{ m }}</span> }
+              </td>
+              <td><span class="badge" [class]="rolBadgeClass(u.rol)">{{ u.rol }}</span></td>
+              <td>
+                <label class="switch">
+                  <input type="checkbox" [checked]="u.activo" (change)="toggleEstado(u)" />
+                  <span></span>
+                </label>
+              </td>
+              <td class="muted small">{{ formatFecha(u.ultimoAcceso) }}</td>
+              <td>
+                <div class="row-actions">
+                  <button class="icon-btn" (click)="openEdit(u)" title="Editar"><ui-icon name="pencil" [size]="14" /></button>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+    @if (!loading() && usuarios().length === 0) {
+      <ui-empty-state icon="shield" title="Sin usuarios registrados" />
+    }
+  </div>
+
+  @if (!loading() && usuarios().length > 0) {
+    <ui-pagination [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)" />
+  }
+</div>
+
+<ui-modal [open]="modalOpen()" [title]="editing() ? 'Editar usuario' : 'Nuevo usuario'" width="540px" (close)="modalOpen.set(false)">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form-grid">
+      <div class="field"><label>Nombre de usuario <span class="req">*</span></label><input class="input" formControlName="nombreUsuario" /></div>
+      <div class="field"><label>Nombre completo <span class="req">*</span></label><input class="input" formControlName="nombreCompleto" /></div>
+      <div class="field"><label>Email <span class="req">*</span></label><input class="input" type="email" formControlName="email" /></div>
+      <div class="field">
+        <label>Rol <span class="req">*</span></label>
+        <select class="select" formControlName="rolId">
+          @for (r of roles(); track r.rolId) { <option [value]="r.rolId">{{ r.nombre }}</option> }
+        </select>
+      </div>
+      @if (esRolMedico()) {
+        <div class="field">
+          <label>Médico vinculado</label>
+          <select class="select" formControlName="medicoId">
+            <option [value]="null">Sin vincular</option>
+            @for (m of medicos(); track m.medicoId) { <option [value]="m.medicoId">Dr(a). {{ m.nombres }} {{ m.apellidos }}</option> }
+          </select>
+        </div>
+      }
+      @if (!editing()) {
+        <div class="field full">
+          <label>Contraseña <span class="req">*</span></label>
+          <input class="input" type="password" formControlName="contrasena" placeholder="Mínimo 6 caracteres" />
+        </div>
+      }
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="modalOpen.set(false)">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar' }}</button>
+    </div>
+  </form>
+</ui-modal>

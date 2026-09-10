@@ -1,0 +1,67 @@
+<ui-page-header icon="pill" title="Tratamientos" subtitle="Catálogo de medicamentos disponibles para prescripción.">
+  <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nuevo medicamento</button>
+</ui-page-header>
+
+<div class="card">
+  <div class="toolbar">
+    <div class="search grow">
+      <ui-icon name="search" [size]="16" />
+      <input placeholder="Buscar por nombre o principio activo…" (input)="onSearchInput($any($event.target).value)" />
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>Nombre</th><th>Principio activo</th><th>Presentación</th><th>Concentración</th><th>Estado</th><th style="text-align:right">Acciones</th></tr></thead>
+      <tbody>
+        @if (loading()) {
+          <ui-skeleton-rows [rows]="pageSize()" [cols]="6" />
+        } @else {
+          @for (m of medicamentos(); track m.medicamentoId) {
+            <tr>
+              <td class="strong">{{ m.nombre }}</td>
+              <td>{{ m.principioActivo }}</td>
+              <td>{{ m.presentacion }}</td>
+              <td>{{ m.concentracion }}</td>
+              <td>
+                <span class="badge" [class]="m.activo ? 'badge-success' : 'badge-neutral'">
+                  <span class="badge-dot"></span>{{ m.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="icon-btn" (click)="openEdit(m)" title="Editar"><ui-icon name="pencil" [size]="14" /></button>
+                  <button class="icon-btn danger" (click)="deactivate(m)" title="Desactivar"><ui-icon name="trash" [size]="14" /></button>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+    @if (!loading() && medicamentos().length === 0) {
+      <ui-empty-state icon="pill" title="Sin medicamentos en el catálogo" />
+    }
+  </div>
+
+  @if (!loading() && medicamentos().length > 0) {
+    <ui-pagination [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)" />
+  }
+</div>
+
+<ui-modal [open]="modalOpen()" [title]="editing() ? 'Editar medicamento' : 'Nuevo medicamento'" width="520px" (close)="modalOpen.set(false)">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="stack gap-16">
+      <div class="field"><label>Nombre <span class="req">*</span></label><input class="input" formControlName="nombre" /></div>
+      <div class="field"><label>Principio activo <span class="req">*</span></label><input class="input" formControlName="principioActivo" /></div>
+      <div class="form-grid">
+        <div class="field"><label>Presentación <span class="req">*</span></label><input class="input" formControlName="presentacion" placeholder="ej. Tableta, Jarabe" /></div>
+        <div class="field"><label>Concentración <span class="req">*</span></label><input class="input" formControlName="concentracion" placeholder="ej. 500 mg" /></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="modalOpen.set(false)">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar' }}</button>
+    </div>
+  </form>
+</ui-modal>

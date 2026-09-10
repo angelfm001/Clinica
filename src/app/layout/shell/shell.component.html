@@ -1,0 +1,19 @@
+<div class="app-shell">
+  <app-sidebar
+    [mobileOpen]="mobileOpen()"
+    [collapsed]="collapsed()"
+    (collapseToggle)="toggleCollapse()"
+    (navigate)="closeMobile()"
+  />
+
+  @if (mobileOpen()) {
+    <div class="scrim no-print" (click)="closeMobile()"></div>
+  }
+
+  <div class="main" [class.collapsed]="collapsed()">
+    <app-header (menuClick)="toggleMobile()" />
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

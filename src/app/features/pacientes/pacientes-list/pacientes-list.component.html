@@ -1,0 +1,84 @@
+<ui-page-header icon="users" title="Pacientes" subtitle="Gestione la información de los pacientes del sistema.">
+  <button class="btn btn-primary" (click)="openCreate()">
+    <ui-icon name="plus" [size]="16" /> Nuevo paciente
+  </button>
+</ui-page-header>
+
+<div class="card">
+  <div class="toolbar">
+    <div class="search grow">
+      <ui-icon name="search" [size]="16" />
+      <input placeholder="Buscar por nombre, documento o teléfono…" (input)="onSearchInput($any($event.target).value)" />
+    </div>
+    <button class="btn btn-secondary"><ui-icon name="filter" [size]="16" /> Filtros</button>
+    <button class="btn btn-secondary" (click)="exportCsv()"><ui-icon name="download" [size]="16" /> Exportar</button>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th class="sortable">Paciente ↕</th>
+          <th class="sortable">Documento ↕</th>
+          <th>Teléfono</th>
+          <th>Edad</th>
+          <th>Estado</th>
+          <th style="text-align:right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading()) {
+          <ui-skeleton-rows [rows]="pageSize()" [cols]="6" />
+        } @else {
+          @for (p of pacientes(); track p.pacienteId) {
+            <tr (click)="goToDetail(p)" style="cursor:pointer">
+              <td>
+                <div class="row gap-10">
+                  <span class="avatar" style="width:38px;height:38px;font-size:12.5px">{{ (p.nombres + ' ' + p.apellidos) | iniciales }}</span>
+                  <div>
+                    <span class="link-strong">{{ p.nombres }} {{ p.apellidos }}</span>
+                    <span class="xs muted" style="display:block">{{ p.email || 'Sin correo registrado' }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>{{ p.tipoDocumento }} {{ p.numeroDocumento }}</td>
+              <td>{{ p.telefono || '—' }}</td>
+              <td>{{ p.fechaNacimiento | edad }}</td>
+              <td>
+                <span class="badge" [class]="p.activo ? 'badge-success' : 'badge-neutral'">
+                  <span class="badge-dot"></span>{{ p.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="icon-btn" (click)="goToDetail(p); $event.stopPropagation()" title="Ver detalle"><ui-icon name="eye" [size]="15" /></button>
+                  <button class="icon-btn" (click)="openEdit(p, $event)" title="Editar"><ui-icon name="pencil" [size]="15" /></button>
+                  <button class="icon-btn danger" (click)="deactivate(p, $event)" title="Desactivar"><ui-icon name="trash" [size]="15" /></button>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+
+    @if (!loading() && pacientes().length === 0) {
+      <ui-empty-state icon="users" title="No se encontraron pacientes" subtitle="Ajusta la búsqueda o registra un nuevo paciente.">
+        <button class="btn btn-primary btn-sm mt-12" (click)="openCreate()">
+          <ui-icon name="plus" [size]="14" /> Nuevo paciente
+        </button>
+      </ui-empty-state>
+    }
+  </div>
+
+  @if (!loading() && pacientes().length > 0) {
+    <ui-pagination [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)" />
+  }
+</div>
+
+<app-paciente-form-modal
+  [open]="modalOpen()"
+  [paciente]="editingPaciente()"
+  (close)="closeModal()"
+  (saved)="onSaved()"
+/>

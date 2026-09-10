@@ -1,0 +1,43 @@
+<ui-modal [open]="open()" [title]="isEdit ? 'Editar contacto' : 'Nuevo contacto de emergencia'" width="520px" (close)="close.emit()">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form-grid">
+      <div class="field full">
+        <label>Nombre completo <span class="req">*</span></label>
+        <input class="input" formControlName="nombreCompleto" placeholder="Nombre completo del contacto" />
+        @if (form.controls.nombreCompleto.invalid && form.controls.nombreCompleto.touched) {
+          <span class="error-text">El nombre es obligatorio.</span>
+        }
+      </div>
+      <div class="field">
+        <label>Parentesco <span class="req">*</span></label>
+        <select class="select" formControlName="parentesco">
+          <option value="">Seleccione</option>
+          @for (p of parentescos; track p) { <option [value]="p">{{ p }}</option> }
+        </select>
+      </div>
+      <div class="field">
+        <label>Prioridad <span class="req">*</span></label>
+        <input class="input" type="number" min="1" formControlName="prioridad" />
+      </div>
+      <div class="field">
+        <label>Teléfono <span class="req">*</span></label>
+        <input class="input" formControlName="telefono" placeholder="0000-0000" />
+        @if (form.controls.telefono.invalid && form.controls.telefono.touched) {
+          <span class="error-text">El teléfono es obligatorio.</span>
+        }
+      </div>
+      <div class="field">
+        <label>Teléfono secundario</label>
+        <input class="input" formControlName="telefonoSecundario" placeholder="0000-0000" />
+      </div>
+      <div class="field full">
+        <label>Email</label>
+        <input class="input" type="email" formControlName="email" placeholder="correo@ejemplo.com" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="close.emit()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar' }}</button>
+    </div>
+  </form>
+</ui-modal>

@@ -1,0 +1,87 @@
+@if (loading()) {
+  <div class="skeleton" style="height:400px;border-radius:14px"></div>
+} @else if (paciente(); as p) {
+  <div class="back-row">
+    <a [routerLink]="['/pacientes', p.pacienteId]" class="btn btn-ghost btn-sm"><ui-icon name="arrowLeft" [size]="15" /> Volver al paciente</a>
+  </div>
+
+  <div class="patient-hero card">
+    <span class="avatar hero-avatar">{{ (p.nombres + ' ' + p.apellidos) | iniciales }}</span>
+    <div class="grow">
+      <h1>{{ p.nombres }} {{ p.apellidos }}</h1>
+      <p class="muted small mt-8">{{ p.codigoPaciente }} · {{ p.fechaNacimiento | edad }} · {{ p.tipoSangre || 'Tipo de sangre no registrado' }}</p>
+    </div>
+  </div>
+
+  <div class="expediente-grid mt-20">
+    <div class="card">
+      <div class="card-head"><span class="card-title">Historial de atenciones</span></div>
+      <div class="card-pad">
+        @if (atenciones().length === 0) {
+          <ui-empty-state icon="stethoscope" title="Sin atenciones previas" subtitle="El historial se construye a partir de cada atención registrada." />
+        } @else {
+          <div class="timeline">
+            @for (at of atenciones(); track at.atencionId) {
+              <div class="timeline-item">
+                <span class="timeline-dot"></span>
+                <div class="collapsible-head" style="padding:0 0 6px" (click)="toggleAtencion(at.atencionId)">
+                  <div>
+                    <b class="small">{{ at.motivoConsulta || 'Consulta' }}</b>
+                    <p class="xs muted mt-8">{{ at.fechaAtencion }} · {{ at.medicoNombre }}</p>
+                  </div>
+                  <ui-icon [name]="atencionExpandida() === at.atencionId ? 'chevronDown' : 'chevronRight'" [size]="15" />
+                </div>
+                @if (atencionExpandida() === at.atencionId) {
+                  <div class="atencion-expand">
+                    @if (at.diagnostico) {
+                      <p class="xs strong">Diagnóstico:</p>
+                      <p class="small mt-8">{{ at.diagnostico }}</p>
+                    }
+                    @if (at.notas.length) {
+                      <p class="xs strong mt-12">Notas:</p>
+                      @for (n of at.notas; track n.notaMedicaId) { <p class="small mt-8">{{ n.nota }}</p> }
+                    }
+                    @if (!at.diagnostico && !at.notas.length) {
+                      <p class="xs muted">Sin diagnóstico ni notas registradas en esta atención.</p>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Prescripciones</span></div>
+      <div class="card-pad">
+        @if (prescripciones().length === 0) {
+          <ui-empty-state icon="pill" title="Sin prescripciones emitidas" />
+        } @else {
+          <div class="stack gap-10">
+            @for (rx of prescripciones(); track rx.prescripcionId) {
+              <div class="rx-card">
+                <div class="collapsible-head" style="padding:12px" (click)="toggleReceta(rx.prescripcionId)">
+                  <div>
+                    <b class="small">RX-{{ rx.prescripcionId }}</b>
+                    <p class="xs muted mt-8">{{ rx.fecha }} · {{ rx.medicoNombre }} · {{ rx.detalles.length }} medicamento(s)</p>
+                  </div>
+                  <ui-icon [name]="recetaExpandida() === rx.prescripcionId ? 'chevronDown' : 'chevronRight'" [size]="15" />
+                </div>
+                @if (recetaExpandida() === rx.prescripcionId) {
+                  <div class="rx-detail">
+                    @for (d of rx.detalles; track d.medicamentoId) {
+                      <div class="record-row"><b>{{ d.medicamentoNombre }}</b><span class="xs muted">{{ d.dosis }} · {{ d.frecuencia }} · {{ d.duracion }} · {{ d.viaAdministracion }}</span></div>
+                    }
+                    <button class="btn btn-secondary btn-sm mt-8" (click)="imprimirPrescripcion(rx)"><ui-icon name="printer" [size]="14" /> Imprimir</button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

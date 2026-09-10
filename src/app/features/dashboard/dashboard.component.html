@@ -1,0 +1,112 @@
+<ui-page-header icon="home" title="Inicio" [subtitle]="'Hola, ' + (auth.usuario()?.nombreCompleto ?? '') + '. Este es el resumen de hoy.'">
+  <a routerLink="/agenda" class="btn btn-primary">
+    <ui-icon name="plus" [size]="16" /> Nueva cita
+  </a>
+</ui-page-header>
+
+<div class="dashboard-grid">
+  <div class="stack gap-20">
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Citas de hoy</span>
+        <a routerLink="/agenda" class="link-strong small">Ver agenda completa →</a>
+      </div>
+      <div class="card-body">
+        @if (loading()) {
+          <div class="stack gap-12">
+            @for (i of [1, 2, 3]; track i) {
+              <div class="skeleton" style="height: 56px; border-radius: 10px;"></div>
+            }
+          </div>
+        } @else if (citasHoy().length === 0) {
+          <p class="muted small">No hay citas programadas para hoy.</p>
+        } @else {
+          <div class="stack gap-10">
+            @for (c of citasHoy(); track c.citaId) {
+              <div class="cita-row">
+                <span class="avatar" style="width:38px;height:38px;font-size:12px">{{ c.pacienteNombre | iniciales }}</span>
+                <div class="grow">
+                  <p class="strong small">{{ c.pacienteNombre }}</p>
+                  <p class="xs muted">{{ c.medicoNombre }} · {{ c.especialidadNombre }}</p>
+                </div>
+                <span class="time-chip">{{ c.hora }}</span>
+                <ui-estado-cita-badge [estado]="c.estado" />
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="quick-activity">
+      <div class="card card-pad">
+        <div class="card-title mt-8" style="margin-bottom:14px">Acciones rápidas</div>
+        <div class="quick-actions">
+          <a routerLink="/pacientes" [queryParams]="{ nuevo: 1 }" class="quick">
+            <span class="qicon"><ui-icon name="userPlus" [size]="22" /></span>
+            <span>Nuevo paciente</span>
+          </a>
+          <a routerLink="/agenda" [queryParams]="{ nueva: 1 }" class="quick">
+            <span class="qicon"><ui-icon name="calendar" [size]="22" /></span>
+            <span>Nueva cita</span>
+          </a>
+          <a routerLink="/clinica" class="quick">
+            <span class="qicon"><ui-icon name="stethoscope" [size]="22" /></span>
+            <span>Ver atenciones</span>
+          </a>
+          <a routerLink="/tratamientos" class="quick">
+            <span class="qicon"><ui-icon name="pill" [size]="22" /></span>
+            <span>Tratamientos</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        <div class="card-title" style="margin-bottom:14px">Actividad reciente</div>
+        <ul class="activity-list">
+          @for (a of actividad; track a.texto) {
+            <li>
+              <span class="activity-dot" [class]="'tone-' + a.tone"><ui-icon [name]="a.icon" [size]="13" /></span>
+              <span class="grow small">{{ a.texto }}</span>
+              <span class="xs muted">{{ a.hace }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <aside class="stack gap-20">
+    <div class="card">
+      <div class="card-head"><span class="card-title">Resumen</span></div>
+      <ui-stat-card icon="users" tone="brand" label="Pacientes activos" [value]="pacientesActivos()" trend="+12%" note="vs. mes anterior" />
+      <div class="divider"></div>
+      <ui-stat-card icon="calendar" tone="success" label="Citas hoy" [value]="citasTotalHoy()" trend="+8%" note="vs. ayer" />
+      <div class="divider"></div>
+      <ui-stat-card icon="clipboard" tone="purple" label="En tratamiento" value="156" trend="+5%" note="vs. mes anterior" />
+      <div class="divider"></div>
+      <ui-stat-card icon="alertTriangle" tone="warning" label="Recordatorios" value="12" note="Pendientes" />
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Próximas citas</span></div>
+      @if (proximasCitas().length === 0) {
+        <div class="card-body"><p class="muted small">Sin próximas citas pendientes hoy.</p></div>
+      } @else {
+        @for (c of proximasCitas(); track c.citaId) {
+          <div class="appointment-item">
+            <span class="avatar" style="width:36px;height:36px;font-size:12px">{{ c.pacienteNombre | iniciales }}</span>
+            <div class="grow">
+              <b class="small">{{ c.pacienteNombre }}</b>
+              <small class="muted xs">{{ c.medicoNombre }}</small>
+            </div>
+            <span class="time-chip">{{ c.hora }}</span>
+          </div>
+        }
+      }
+      <div style="padding:14px 17px">
+        <a routerLink="/agenda" class="link-strong small">Ver todas las citas →</a>
+      </div>
+    </div>
+  </aside>
+</div>

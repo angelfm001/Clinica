@@ -1,0 +1,41 @@
+<ui-modal [open]="open()" [title]="isEdit ? 'Editar médico' : 'Nuevo médico'" width="620px" (close)="close.emit()">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form-grid">
+      <div class="field">
+        <label>Nombres <span class="req">*</span></label>
+        <input class="input" formControlName="nombres" />
+      </div>
+      <div class="field">
+        <label>Apellidos <span class="req">*</span></label>
+        <input class="input" formControlName="apellidos" />
+      </div>
+      <div class="field">
+        <label>Número de licencia <span class="req">*</span></label>
+        <input class="input" formControlName="licencia" placeholder="JVPM-00000" />
+      </div>
+      <div class="field">
+        <label>Especialidad <span class="req">*</span></label>
+        <select class="select" formControlName="especialidadId">
+          <option [value]="0">Seleccione</option>
+          @for (e of especialidades(); track e.especialidadId) { <option [value]="e.especialidadId">{{ e.nombre }}</option> }
+        </select>
+        @if (form.controls.especialidadId.invalid && form.controls.especialidadId.touched) {
+          <span class="error-text">Selecciona una especialidad.</span>
+        }
+      </div>
+      <div class="field">
+        <label>Teléfono</label>
+        <input class="input" formControlName="telefono" placeholder="0000-0000" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input class="input" type="email" formControlName="email" placeholder="correo@citasmedicas.sv" />
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="close.emit()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar' }}</button>
+    </div>
+  </form>
+</ui-modal>

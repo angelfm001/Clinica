@@ -1,0 +1,207 @@
+<ui-page-header icon="calendar" title="Agenda Médica" subtitle="Vista semanal de citas y disponibilidad clínica.">
+  <button class="btn btn-secondary btn-sm" (click)="goToday()">
+    <ui-icon name="calendar" [size]="14" /> Hoy
+  </button>
+  <div class="date-nav">
+    <button class="icon-btn bare" (click)="navPrev()"><ui-icon name="chevronLeft" [size]="16" /></button>
+    <span class="date-range">{{ periodLabel() }}</span>
+    <button class="icon-btn bare" (click)="navNext()"><ui-icon name="chevronRight" [size]="16" /></button>
+  </div>
+
+  <div class="view-toggle">
+    <button class="view-btn" [class.active]="vista() === 'semana'" (click)="setVista('semana')">Semana</button>
+    <button class="view-btn" [class.active]="vista() === 'dia'" (click)="setVista('dia')">Día</button>
+    <button class="view-btn" [class.active]="vista() === 'mes'" (click)="setVista('mes')">Mes</button>
+  </div>
+
+  <button class="btn btn-primary" (click)="openNueva()"><ui-icon name="plus" [size]="16" /> Nueva Cita</button>
+</ui-page-header>
+
+<div class="card card-pad">
+  <div class="filters-row">
+    <select class="select" [value]="filtroMedico()" (change)="filtroMedico.set(+$any($event.target).value)">
+      <option [value]="0">Todos los Médicos</option>
+      @for (m of medicos(); track m.medicoId) { <option [value]="m.medicoId">Dr(a). {{ m.nombres }} {{ m.apellidos }}</option> }
+    </select>
+    <select class="select" [value]="filtroEspecialidad()" (change)="filtroEspecialidad.set(+$any($event.target).value)">
+      <option [value]="0">Todas las Especialidades</option>
+      @for (e of especialidades(); track e.especialidadId) { <option [value]="e.especialidadId">{{ e.nombre }}</option> }
+    </select>
+    <div class="legend ml-auto">
+      <span class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>Confirmada</span>
+      <span class="legend-item"><span class="legend-dot" style="background:var(--info)"></span>Pendiente</span>
+      <span class="legend-item"><span class="legend-dot" style="background:var(--danger)"></span>Cancelada</span>
+    </div>
+  </div>
+</div>
+
+<div class="agenda-layout mt-20">
+  <div class="card calendar-card">
+    @switch (vista()) {
+
+      @case ('semana') {
+        <div class="table-wrap">
+          <div class="week-grid">
+            <div class="week-head">
+              <div class="hours-col-head"></div>
+              @for (d of gridDays(); track d.getTime()) {
+                <div class="day-head" [class.today]="esHoy(d)">
+                  <span class="dow">{{ dow(d) }}</span>
+                  <span class="dom">{{ d.getDate() }}</span>
+                </div>
+              }
+            </div>
+            <div class="week-body">
+              <div class="hours-col" [style.height.px]="horas.length * 64">
+                @for (h of horas; track h) { <div class="hour-label">{{ h }}:00</div> }
+                @if (nowTopPercent(); as top) {
+                  <div class="now-time-label" [style.top.%]="top">{{ nowLabel() }}</div>
+                }
+              </div>
+              <div class="days-area">
+                @for (d of gridDays(); track d.getTime()) {
+                  <div class="day-col" [class.today]="esHoy(d)" [style.height.px]="horas.length * 64">
+                    @for (h of horas; track h) { <div class="hour-row"></div> }
+                    @for (b of bloquesDelDia(d); track b.cita.citaId) {
+                      <button
+                        type="button"
+                        class="cita-block"
+                        [class]="'block-' + b.cita.estado.replace(' ', '-')"
+                        [style.top.%]="b.top"
+                        [style.height.%]="b.height"
+                        (click)="openDetalle(b.cita)"
+                      >
+                        <b>{{ b.cita.hora }}</b>
+                        <span>{{ b.cita.pacienteNombre }}</span>
+                      </button>
+                    }
+                  </div>
+                }
+                @if (nowTopPercent(); as top) {
+                  <div class="now-line" [style.top.%]="top"><span class="now-dot"></span></div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      @case ('dia') {
+        <div class="card-head">
+          <span class="card-title">Citas del {{ selectedDateLabel() }}</span>
+          <span class="muted small">{{ citasFiltradas().length }} cita(s)</span>
+        </div>
+        <div class="card-body">
+          @if (loading()) {
+            <div class="stack gap-10">
+              @for (i of [1, 2, 3]; track i) { <div class="skeleton" style="height:64px;border-radius:10px"></div> }
+            </div>
+          } @else if (citasFiltradas().length === 0) {
+            <ui-empty-state icon="calendar" title="Sin citas para este día" subtitle="Agenda una nueva cita para esta fecha.">
+              <button class="btn btn-primary btn-sm mt-12" (click)="openNueva()"><ui-icon name="plus" [size]="14" /> Nueva cita</button>
+            </ui-empty-state>
+          } @else {
+            <div class="stack gap-10">
+              @for (c of citasFiltradas(); track c.citaId) {
+                <button type="button" class="agenda-row" [class]="'estado-' + c.estado.replace(' ', '-')" (click)="openDetalle(c)">
+                  <span class="hora-col">{{ c.hora }}</span>
+                  <span class="avatar" style="width:38px;height:38px;font-size:12px">{{ c.pacienteNombre | iniciales }}</span>
+                  <span class="grow">
+                    <span class="strong small" style="display:block">{{ c.pacienteNombre }}</span>
+                    <span class="xs muted">{{ c.medicoNombre }} · {{ c.especialidadNombre }} · {{ c.consultorioNombre }}</span>
+                  </span>
+                  <ui-estado-cita-badge [estado]="c.estado" />
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @case ('mes') {
+        <div class="card-head">
+          <span class="card-title">{{ monthLabel() }}</span>
+        </div>
+        <div class="card-pad">
+          <div class="month-grid">
+            @for (dLabel of ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']; track dLabel) {
+              <div class="month-dow">{{ dLabel }}</div>
+            }
+            @for (d of monthGrid(); track d.getTime()) {
+              <button
+                type="button"
+                class="month-cell"
+                [class.muted-day]="!isCurrentMonth(d)"
+                [class.today]="esHoy(d)"
+                [class.selected]="isoOf(d) === selectedDate()"
+                (click)="selectMonthDay(d)"
+              >
+                <span class="month-daynum">{{ d.getDate() }}</span>
+                @if (countFor(d) > 0) { <span class="month-count">{{ countFor(d) }}</span> }
+              </button>
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <aside class="stack gap-20">
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Resumen del Día</span>
+        <span class="muted xs">{{ selectedDateLabel() }}</span>
+      </div>
+      <div class="resumen-stats">
+        <div class="resumen-stat">
+          <span class="xs muted">Total Citas</span>
+          <strong>{{ totalCitasDia() }}</strong>
+        </div>
+        <div class="resumen-stat success">
+          <span class="xs muted">Confirmadas</span>
+          <strong>{{ confirmadasDia() }}</strong>
+        </div>
+      </div>
+      @if (porConfirmarDia() > 0) {
+        <div class="card-pad">
+          <div class="warning-box">
+            <span class="ib-icon"><ui-icon name="alertTriangle" [size]="16" /></span>
+            <div>
+              <strong>Por Confirmar</strong>
+              <p class="xs muted mt-8">Requieren acción</p>
+            </div>
+            <span class="warning-count">{{ porConfirmarDia() }}</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Próximas Hoy</span></div>
+      @if (proximasHoy().length === 0) {
+        <div class="card-body"><p class="muted small">Sin más citas pendientes hoy.</p></div>
+      } @else {
+        @for (c of proximasHoy(); track c.citaId) {
+          <button type="button" class="proxima-item" (click)="openDetalle(c)">
+            <span class="avatar" style="width:36px;height:36px;font-size:12px">{{ c.pacienteNombre | iniciales }}</span>
+            <span class="grow">
+              <b class="small" style="display:block">{{ c.pacienteNombre }}</b>
+              <small class="muted xs">{{ c.medicoNombre }} · {{ c.especialidadNombre }}</small>
+            </span>
+            @if (esAhora(c)) {
+              <span class="badge badge-info">{{ badgeLabel(c) }}</span>
+            } @else {
+              <span class="time-chip">{{ badgeLabel(c) }}</span>
+            }
+          </button>
+        }
+      }
+      <div style="padding:14px 17px">
+        <button class="link-btn small" (click)="verAgendaCompleta()">Ver agenda completa →</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<app-cita-form-modal [open]="modalOpen()" [fechaInicial]="selectedDate()" (close)="modalOpen.set(false)" (saved)="onCitaCreada()" />
+<app-cita-detalle-panel [cita]="citaSeleccionada()" (close)="citaSeleccionada.set(null)" (changed)="onDetalleChanged()" />

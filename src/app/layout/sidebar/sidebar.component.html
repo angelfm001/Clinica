@@ -1,0 +1,58 @@
+<aside class="sidebar no-print" [class.open]="mobileOpen()" [class.collapsed]="collapsed()">
+  <div class="brand">
+    <div class="brand-icon">
+      <ui-icon name="heartPulse" [size]="22" [strokeWidth]="2.4" />
+    </div>
+    @if (!collapsed()) {
+      <div class="brand-text">
+        <strong>Citas Médicas</strong>
+        <span>Sistema de Gestión</span>
+      </div>
+    }
+  </div>
+
+  <div class="nav-scroll">
+    @if (!collapsed()) { <div class="section-title">Navegación</div> }
+    <nav class="nav">
+      @for (item of navPrincipal; track item.route) {
+        @if (visible(item)) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [title]="item.label"
+            (click)="navigate.emit()"
+          >
+            <span class="nav-icon"><ui-icon [name]="item.icon" [size]="19" /></span>
+            @if (!collapsed()) { <span class="nav-label">{{ item.label }}</span> }
+          </a>
+        }
+      }
+    </nav>
+
+    @if (isAdminVisible) {
+      <div class="admin-section">
+        @if (!collapsed()) { <div class="section-title">Administración</div> }
+        <nav class="nav">
+          @for (item of navAdmin; track item.route) {
+            @if (visible(item)) {
+              <a
+                [routerLink]="item.route"
+                routerLinkActive="active"
+                [title]="item.label"
+                (click)="navigate.emit()"
+              >
+                <span class="nav-icon"><ui-icon [name]="item.icon" [size]="19" /></span>
+                @if (!collapsed()) { <span class="nav-label">{{ item.label }}</span> }
+              </a>
+            }
+          }
+        </nav>
+      </div>
+    }
+  </div>
+
+  <button class="collapse-btn" type="button" (click)="collapseToggle.emit()">
+    <ui-icon [name]="collapsed() ? 'chevronRight' : 'arrowLeft'" [size]="16" />
+    @if (!collapsed()) { <span>Contraer</span> }
+  </button>
+</aside>

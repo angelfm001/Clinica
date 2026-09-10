@@ -1,0 +1,6 @@
+.service-row { padding: 6px 0; border-bottom: 1px solid var(--border-soft); }
+.service-row:last-child { border-bottom: 0; }
+code {
+  background: var(--surface-3); border-radius: 4px; padding: 1px 5px;
+  font-family: 'SFMono-Regular', Consolas, monospace; font-size: 11px;
+}

@@ -1,0 +1,22 @@
+<ui-page-header icon="users" title="Mi perfil" subtitle="Información de tu cuenta y sesión activa." />
+
+<div class="card">
+  <div class="profile-banner">
+    <span class="avatar profile-avatar">{{ auth.usuario()?.nombreCompleto | iniciales }}</span>
+    <div>
+      <h2>{{ auth.usuario()?.nombreCompleto }}</h2>
+      <p class="muted small mt-8">&#64;{{ auth.usuario()?.nombreUsuario }}</p>
+      <span class="badge badge-info mt-8" style="display:inline-flex">{{ auth.usuario()?.rol }}</span>
+    </div>
+  </div>
+
+  <div class="card-pad">
+    <div class="info-grid">
+      <div><span class="label">Email</span><p>{{ auth.usuario()?.email }}</p></div>
+      <div><span class="label">Rol asignado</span><p>{{ auth.usuario()?.rol }}</p></div>
+      @if (medicoVinculado(); as m) {
+        <div><span class="label">Perfil médico vinculado</span><p>{{ m }}</p></div>
+      }
+    </div>
+  </div>
+</div>
