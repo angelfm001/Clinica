@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { PageQuery, PagedResult } from '../models/common.model';
-import { ContactoEmergencia, ContactoEmergenciaInput, Paciente, PacienteInput } from '../models/patient.model';
+import { ContactoEmergencia, ContactoEmergenciaInput, Paciente, PacienteFiltro, PacienteInput } from '../models/patient.model';
 
 /** Cliente HTTP de MedicalAppointments.Patient. */
 @Injectable({ providedIn: 'root' })
@@ -13,11 +13,14 @@ export class PatientService {
 
   constructor(private readonly http: HttpClient) {}
 
-  list(query: PageQuery): Observable<PagedResult<Paciente>> {
+  list(query: PageQuery & PacienteFiltro): Observable<PagedResult<Paciente>> {
     let params = new HttpParams()
       .set('page', query.page ?? 1)
       .set('pageSize', query.pageSize ?? 10);
     if (query.search) params = params.set('search', query.search);
+    if (query.activo !== undefined) params = params.set('activo', String(query.activo));
+    if (query.sexo) params = params.set('sexo', query.sexo);
+    if (query.tipoDocumento) params = params.set('tipoDocumento', query.tipoDocumento);
     return this.http.get<PagedResult<Paciente>>(this.baseUrl, { params });
   }
 

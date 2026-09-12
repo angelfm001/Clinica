@@ -47,6 +47,9 @@ export class CitaFormModalComponent {
   protected readonly pacienteSeleccionado = signal<Paciente | null>(null);
   protected readonly buscandoPaciente = signal(false);
 
+  /** Controla el desplegable de horarios disponibles, anclado al campo Hora. */
+  protected readonly horaPanelOpen = signal(false);
+
   protected readonly form = this.fb.nonNullable.group({
     especialidadId: [0, Validators.required],
     medicoId: [0, Validators.required],
@@ -72,6 +75,7 @@ export class CitaFormModalComponent {
         this.pacienteQuery.set('');
         this.pacienteResultados.set([]);
         this.slots.set([]);
+        this.horaPanelOpen.set(false);
       }
     });
   }
@@ -105,12 +109,14 @@ export class CitaFormModalComponent {
     this.form.patchValue({ medicoId: 0 });
     this.slots.set([]);
     this.form.patchValue({ hora: '' });
+    this.horaPanelOpen.set(false);
   }
 
   protected onMedicoOFechaChange(): void {
     const medicoId = Number(this.form.controls.medicoId.value);
     const fecha = this.form.controls.fecha.value;
     this.form.patchValue({ hora: '' });
+    this.horaPanelOpen.set(false);
     if (!medicoId || !fecha) {
       this.slots.set([]);
       return;
@@ -125,8 +131,15 @@ export class CitaFormModalComponent {
     });
   }
 
+  /** Alterna el desplegable de horarios; requiere médico y fecha ya seleccionados. */
+  protected toggleHorarios(): void {
+    if (!this.form.controls.medicoId.value || !this.form.controls.fecha.value) return;
+    this.horaPanelOpen.update((v) => !v);
+  }
+
   protected pick(hora: string): void {
     this.form.patchValue({ hora });
+    this.horaPanelOpen.set(false);
   }
 
   protected submit(): void {

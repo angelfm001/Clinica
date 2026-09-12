@@ -133,6 +133,27 @@ export class AgendaCalendarioComponent {
     if (this.route.snapshot.queryParamMap.get('nueva')) {
       this.modalOpen.set(true);
     }
+
+    // Suscrito (no solo snapshot): al navegar desde una notificación ya
+    // estando en /agenda, Angular reutiliza esta misma instancia y solo
+    // cambian los query params, sin volver a ejecutar el constructor.
+    this.route.queryParamMap.subscribe((params) => {
+      const citaId = Number(params.get('citaId'));
+      if (citaId) this.irACita(citaId);
+    });
+  }
+
+  /** Salta a la fecha de la cita indicada, en vista Día, y abre su detalle. */
+  private irACita(citaId: number): void {
+    this.appointmentService.get(citaId).subscribe((c) => {
+      const [y, m, dd] = c.fecha.split('-').map(Number);
+      const d = new Date(y, m - 1, dd);
+      this.selectedDate.set(c.fecha);
+      this.weekStart.set(startOfWeek(d));
+      this.vista.set('dia');
+      this.load();
+      this.citaSeleccionada.set(c);
+    });
   }
 
   private rangoActual(): { desde: string; hasta: string } {

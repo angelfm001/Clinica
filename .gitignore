@@ -39,6 +39,9 @@ testem.log
 /typings
 __screenshots__/
 
+# Claude Code (config local del editor/agente, no del proyecto)
+.claude/
+
 # System files
 .DS_Store
 Thumbs.db

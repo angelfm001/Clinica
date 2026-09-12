@@ -1,1 +1,5 @@
 /* Estilos específicos de esta pantalla ya cubiertos por las utilidades globales. */
+.filters-row {
+  display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;
+  padding: 0 18px 16px; border-bottom: 1px solid var(--border-soft);
+}

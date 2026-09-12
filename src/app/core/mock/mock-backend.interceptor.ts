@@ -172,10 +172,19 @@ export function mockBackendInterceptor(req: HttpRequest<any>, next: HttpHandlerF
           const idList = ids.split(',').map(Number);
           return ok(db.pacientes.filter((p) => idList.includes(p.pacienteId)));
         }
+        const activo = qp.get('activo');
+        const sexo = qp.get('sexo');
+        const tipoDocumento = qp.get('tipoDocumento');
+        const base = db.pacientes.filter((p) =>
+          (activo === null || p.activo === (activo === 'true')) &&
+          (!sexo || p.sexo === sexo) &&
+          (!tipoDocumento || p.tipoDocumento === tipoDocumento)
+        );
+
         const search = qp.get('search');
         const rawQ = (search ?? '').toLowerCase().trim();
         if (rawQ) {
-          let filtered = db.pacientes.filter((p) =>
+          let filtered = base.filter((p) =>
             `${p.nombres} ${p.apellidos}`.toLowerCase().includes(rawQ) ||
             p.numeroDocumento.toLowerCase().includes(rawQ) ||
             (p.telefono ?? '').includes(rawQ)
@@ -191,7 +200,7 @@ export function mockBackendInterceptor(req: HttpRequest<any>, next: HttpHandlerF
           const start = (page - 1) * pageSize;
           return ok({ items: filtered.slice(start, start + pageSize), total: filtered.length, page, pageSize });
         }
-        const result = paginate(db.pacientes, search, Number(qp.get('page') ?? 1), Number(qp.get('pageSize') ?? 10),
+        const result = paginate(base, search, Number(qp.get('page') ?? 1), Number(qp.get('pageSize') ?? 10),
           (p, q) => `${p.nombres} ${p.apellidos}`.toLowerCase().includes(q) || p.numeroDocumento.toLowerCase().includes(q) || (p.telefono ?? '').includes(q));
         return ok(result);
       }

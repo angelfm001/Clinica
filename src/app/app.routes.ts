@@ -24,6 +24,7 @@ export const routes: Routes = [
         path: 'inicio',
         loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
         title: 'Inicio · Citas Médicas',
+        data: { help: 'Resumen del día: citas próximas, accesos rápidos y actividad reciente del sistema.' },
       },
       {
         path: 'pacientes',
@@ -55,6 +56,7 @@ export const routes: Routes = [
         path: 'reportes',
         loadComponent: () => import('./features/reportes/reportes.component').then((m) => m.ReportesComponent),
         title: 'Reportes · Citas Médicas',
+        data: { help: 'Resumen de los datos del mes: citas por estado y carga de trabajo por médico.' },
       },
       {
         path: 'admin',
@@ -66,6 +68,7 @@ export const routes: Routes = [
         path: 'perfil',
         loadComponent: () => import('./features/perfil/perfil.component').then((m) => m.PerfilComponent),
         title: 'Mi perfil · Citas Médicas',
+        data: { help: 'Información de tu cuenta, rol asignado y sesión activa.' },
       },
       { path: '**', redirectTo: 'inicio' },
     ],
