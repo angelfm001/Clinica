@@ -2,7 +2,20 @@
   Sincroniza los cambios locales de este proyecto con GitHub:
   https://github.com/angelfm001/Clinica.git
 
-  Hace, en orden: fetch -> add -> commit (si hay cambios) -> push.
+  Hace, en orden: fetch -> add -> commit (si hay cambios) -> pull --rebase -> push.
+
+  Mensaje de commit:
+    - Si pasas -Message, se usa ese texto tal cual.
+    - Si no, se lee de scripts\commit-message.txt (junto a este script).
+    - Si ese archivo no existe o está vacío, se usa una marca de tiempo por defecto.
+
+  Ruta del repo:
+    $PSScriptRoot es la carpeta donde vive ESTE archivo .ps1 (siempre,
+    sin importar desde dónde lo invoques). Como el script está en
+    "<repo>\scripts", subir un nivel con Split-Path -Parent da la raíz
+    del repo. Así el script funciona igual si lo corres desde
+    "C:\...\Clinica" o desde "C:\...\Clinica\scripts", o desde cualquier
+    otra carpeta.
 
   Uso:
     .\scripts\git-sync.ps1
@@ -10,7 +23,7 @@
     .\scripts\git-sync.ps1 -Branch main -Remote origin
 #>
 param(
-    [string]$Message = "Actualizacion $(Get-Date -Format 'yyyy-MM-dd HH:mm')",
+    [string]$Message,
     [string]$Remote = "origin",
     [string]$Branch = "main"
 )
@@ -21,9 +34,21 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $repoRoot
 
+# Si no se pasó -Message, se busca scripts\commit-message.txt.
+if (-not $Message) {
+    $msgFile = Join-Path $PSScriptRoot "commit-message.txt"
+    if (Test-Path $msgFile) {
+        $Message = (Get-Content -Path $msgFile -Raw).Trim()
+    }
+}
+if (-not $Message) {
+    $Message = "Actualizacion $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
+}
+
 Write-Host "Repositorio : $repoRoot"
 Write-Host "Remoto      : $Remote"
 Write-Host "Rama        : $Branch"
+Write-Host "Mensaje     : $Message"
 Write-Host ""
 
 # 1) Traer el estado remoto antes de tocar nada.
