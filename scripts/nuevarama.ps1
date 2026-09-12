@@ -61,11 +61,10 @@ if (-not $Message) {
     $Message = "Actualizacion $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
 }
 
-# 3) Verificar que hay cambios; si no hay nada que guardar, no tiene sentido crear la rama.
-git add -A -- ':!.claude'
-$staged = git diff --cached --name-only
-if (-not $staged) {
-    git reset | Out-Null
+# 3) Verificar que hay cambios (staged, modificados o nuevos); si no hay nada, no tiene sentido crear la rama.
+
+$pending = git status --porcelain
+if (-not $pending) {
     Write-Host "No hay cambios locales para guardar. No se crea ninguna rama."
     exit 0
 }
@@ -79,7 +78,7 @@ Write-Host "Remoto           : $Remote"
 Write-Host "Mensaje          : $Message"
 Write-Host ""
 Write-Host "Archivos a commitear:"
-$staged | ForEach-Object { Write-Host "  $_" }
+$pending | ForEach-Object { Write-Host "  $_" }
 Write-Host ""
 
 # 4) Crear la rama nueva (o cambiar a ella si ya existe) sin perder lo ya agregado al índice.
@@ -91,7 +90,8 @@ if ($branchExists) {
     git checkout -b $newBranch
 }
 
-# 5) Commit en la rama nueva.
+# 5) Agregar todos los cambios pendientes y commitear en la rama nueva.
+git add -A
 git commit -m $Message
 
 # 6) Subir la rama nueva a GitHub (no toca la rama original en el remoto).

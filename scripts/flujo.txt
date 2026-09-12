@@ -1,4 +1,7 @@
 Con los tres scripts que ya tienes, el flujo natural para subir el proyecto por fases (cada fase en su propia rama, construyendo sobre la anterior) es este:
+Resumen:
+1-Editar commit-message.txt → "Fase 1: ...".
+
 
 Fase 0 — main (repo ya creado)
 Repo clonado, parado en main.
