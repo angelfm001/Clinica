@@ -6,7 +6,7 @@ import { IconComponent } from '../../../shared/ui/icon/icon.component';
 import { PageHeaderComponent } from '../../../shared/ui/page-header/page-header.component';
 import { environment } from '../../../../environments/environment';
 
-/** Configuración general de la aplicación: apariencia y estado de integración con microservicios. */
+/** Configuración general: apariencia y estado de la única base Supabase. */
 @Component({
   selector: 'app-configuracion',
   standalone: true,
@@ -19,13 +19,10 @@ export class ConfiguracionComponent {
   protected readonly theme = inject(ThemeService);
   private readonly toast = inject(ToastService);
 
-  protected readonly useMock = environment.useMock;
+  protected readonly supabaseUrl = environment.supabase.url;
+  protected readonly supabaseConfigurado = !environment.supabase.url.includes('TU-PROYECTO');
   protected readonly servicios = [
-    { nombre: 'Security', url: environment.api.security },
-    { nombre: 'Patient', url: environment.api.patient },
-    { nombre: 'Staff', url: environment.api.staff },
-    { nombre: 'Appointment', url: environment.api.appointment },
-    { nombre: 'ClinicalCare', url: environment.api.clinicalCare },
+    { nombre: 'Base única Supabase', url: environment.supabase.url },
   ];
 
   protected clearCache(): void {

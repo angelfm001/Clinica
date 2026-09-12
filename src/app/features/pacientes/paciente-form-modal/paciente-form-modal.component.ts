@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { PatientService } from '../../../core/services/patient.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { NotificacionesService } from '../../../core/services/notificaciones.service';
 import { Paciente, PacienteInput } from '../../../core/models/patient.model';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 
@@ -21,6 +22,7 @@ export class PacienteFormModalComponent {
   private readonly fb = inject(FormBuilder);
   private readonly patientService = inject(PatientService);
   private readonly toast = inject(ToastService);
+  private readonly notificaciones = inject(NotificacionesService);
 
   readonly open = input(false);
   readonly paciente = input<Paciente | null>(null);
@@ -93,6 +95,7 @@ export class PacienteFormModalComponent {
         next: (res) => {
           this.saving.set(false);
           this.toast.success('Paciente registrado correctamente.');
+          this.notificaciones.notificarPacienteRegistrado();
           this.saved.emit(res);
           this.close.emit();
         },

@@ -19,27 +19,39 @@
     <div class="popover-anchor">
       <button class="icon-btn bare" type="button" (click)="toggleNotif()" aria-label="Notificaciones">
         <ui-icon name="bell" [size]="19" />
-        @if (recordatorios.length) { <span class="dot">{{ recordatorios.length }}</span> }
+        @if (recordatorios().length) { <span class="dot">{{ recordatorios().length }}</span> }
       </button>
       @if (notifOpen()) {
         <div class="popover">
           <div class="popover-title">Recordatorios</div>
-          @for (r of recordatorios; track r.texto) {
-            <div class="notif-item">
-              <span class="notif-icon"><ui-icon [name]="r.icon" [size]="15" /></span>
-              <div>
-                <p>{{ r.texto }}</p>
-                <small>{{ r.hace }}</small>
-              </div>
-            </div>
+          @if (recordatorios().length === 0) {
+            <p class="small soft" style="padding:0 10px 10px">Sin novedades por ahora.</p>
+          } @else {
+            @for (r of recordatorios(); track r.texto) {
+              <button type="button" class="notif-item" (click)="r.onClick()">
+                <span class="notif-icon"><ui-icon [name]="r.icon" [size]="15" /></span>
+                <div>
+                  <p>{{ r.texto }}</p>
+                  <small>{{ r.detalle }}</small>
+                </div>
+              </button>
+            }
           }
         </div>
       }
     </div>
 
-    <button class="icon-btn bare" type="button" aria-label="Ayuda">
-      <ui-icon name="help" [size]="19" />
-    </button>
+    <div class="popover-anchor">
+      <button class="icon-btn bare" type="button" (click)="toggleHelp()" aria-label="Ayuda">
+        <ui-icon name="help" [size]="19" />
+      </button>
+      @if (helpOpen()) {
+        <div class="popover">
+          <div class="popover-title">Acerca de esta pantalla</div>
+          <p class="small soft" style="padding:0 10px 10px">{{ helpText() }}</p>
+        </div>
+      }
+    </div>
 
     <div class="popover-anchor">
       <button class="profile-btn" type="button" (click)="toggleProfile()">

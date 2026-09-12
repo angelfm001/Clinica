@@ -1,12 +1,16 @@
 export const environment = {
   production: true,
+  supabase: {
+    url: 'https://TU-PROYECTO.supabase.co',
+    anonKey: 'TU-ANON-PUBLIC-KEY',
+  },
   useMock: false,
-  apiGateway: '/api',
+  apiGateway: '',
   api: {
-    security: '/api/security',
-    patient: '/api/patient',
-    staff: '/api/staff',
-    appointment: '/api/appointment',
-    clinicalCare: '/api/clinical-care',
+    security: '',
+    patient: '',
+    staff: '',
+    appointment: '',
+    clinicalCare: '',
   },
 };

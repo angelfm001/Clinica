@@ -1,24 +1,29 @@
 /**
- * Configuración de desarrollo.
+ * Configuración de desarrollo — UNA SOLA base de datos en Supabase.
  *
- * `useMock` en true intercepta las peticiones HTTP y las responde con datos en
- * memoria (ver core/mock). Los servicios, endpoints y modelos son los reales:
- * al levantar los microservicios basta con poner `useMock: false` y ajustar las
- * URLs de cada API (o apuntar todas al API Gateway).
+ * Toda la app (Security, Patient, Staff, Appointment y ClinicalCare) lee y
+ * escribe contra el mismo proyecto Supabase vía `SupabaseClientService`.
+ * Ya no hay 5 microservicios ni mock en memoria.
  *
- * 5 microservicios (planificación reducida): Security, Patient, Staff,
- * Appointment y ClinicalCare (fusiona MedicalRecord + Treatment).
+ * Pasos:
+ *  1. Crea un proyecto en https://supabase.com
+ *  2. Ejecuta `supabase/schema.sql` en el SQL Editor (crea tablas + seeds)
+ *  3. Pega aquí tu Project URL y anon public key (Settings > API)
  */
 export const environment = {
   production: false,
-  useMock: true,
-  /** API Gateway. Si se usa, todas las rutas cuelgan de aquí. */
-  apiGateway: 'http://localhost:5000',
+  supabase: {
+    url: 'https://TU-PROYECTO.supabase.co',
+    anonKey: 'TU-ANON-PUBLIC-KEY',
+  },
+  /** Se mantiene por compatibilidad; ya no se usa (todo va a Supabase). */
+  useMock: false,
+  apiGateway: '',
   api: {
-    security: 'http://localhost:5100',
-    patient: 'http://localhost:5268',
-    staff: 'http://localhost:5200',
-    appointment: 'http://localhost:5300',
-    clinicalCare: 'http://localhost:5400',
+    security: '',
+    patient: '',
+    staff: '',
+    appointment: '',
+    clinicalCare: '',
   },
 };

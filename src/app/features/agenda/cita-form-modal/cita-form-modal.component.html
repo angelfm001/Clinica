@@ -59,7 +59,44 @@
       </div>
       <div class="field">
         <label>Hora <span class="req">*</span></label>
-        <input class="input" [value]="form.controls.hora.value" readonly placeholder="Seleccione un horario abajo" />
+        <div class="autocomplete">
+          <button
+            type="button"
+            class="input row between"
+            style="cursor:pointer; text-align:left;"
+            [disabled]="!form.controls.medicoId.value || !form.controls.fecha.value"
+            (click)="toggleHorarios()"
+          >
+            <span [class.muted]="!form.controls.hora.value">{{ form.controls.hora.value || 'Ver horarios disponibles' }}</span>
+            <ui-icon [name]="horaPanelOpen() ? 'chevronDown' : 'chevronRight'" [size]="15" />
+          </button>
+          @if (!form.controls.medicoId.value || !form.controls.fecha.value) {
+            <span class="hint">Selecciona especialidad, médico y fecha primero.</span>
+          } @else if (horaPanelOpen()) {
+            <div class="ac-results">
+              <p class="xs strong muted" style="padding:2px 6px 8px">Horarios disponibles</p>
+              @if (loadingSlots()) {
+                <div class="row gap-8 wrap" style="padding:0 6px 8px">
+                  @for (i of [1,2,3,4,5,6]; track i) { <div class="skeleton" style="width:60px;height:32px;border-radius:8px"></div> }
+                </div>
+              } @else if (slots().length === 0) {
+                <p class="muted small" style="padding:0 6px 6px">Este médico no tiene horario configurado para el día seleccionado.</p>
+              } @else {
+                <div class="slot-grid" style="padding:0 6px 6px">
+                  @for (s of slots(); track s.hora) {
+                    <button
+                      type="button"
+                      class="slot"
+                      [class.selected]="form.controls.hora.value === s.hora"
+                      [disabled]="!s.disponible"
+                      (click)="pick(s.hora)"
+                    >{{ s.hora }}</button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
       </div>
       <div class="field full">
         <label>Motivo de consulta</label>
@@ -67,32 +104,9 @@
       </div>
     </div>
 
-    @if (form.controls.medicoId.value && form.controls.fecha.value) {
-      <p class="section-label">Horarios disponibles</p>
-      @if (loadingSlots()) {
-        <div class="row gap-8 wrap">
-          @for (i of [1,2,3,4,5,6]; track i) { <div class="skeleton" style="width:64px;height:34px;border-radius:8px"></div> }
-        </div>
-      } @else if (slots().length === 0) {
-        <p class="muted small">Este médico no tiene horario configurado para el día seleccionado.</p>
-      } @else {
-        <div class="slot-grid">
-          @for (s of slots(); track s.hora) {
-            <button
-              type="button"
-              class="slot"
-              [class.selected]="form.controls.hora.value === s.hora"
-              [disabled]="!s.disponible"
-              (click)="pick(s.hora)"
-            >{{ s.hora }}</button>
-          }
-        </div>
-      }
-    }
-
     <div class="modal-actions">
       <button type="button" class="btn btn-secondary" (click)="close.emit()">Cancelar</button>
-      <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Agendando…' : 'Agendar cita' }}</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Confirmando…' : 'Confirmar cita' }}</button>
     </div>
   </form>
 </ui-modal>

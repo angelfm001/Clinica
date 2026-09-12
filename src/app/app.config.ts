@@ -1,27 +1,22 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
-import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
-import { environment } from '../environments/environment';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
-import { mockBackendInterceptor } from './core/mock/mock-backend.interceptor';
 
 /**
- * El interceptor mock solo se registra en desarrollo (`useMock: true`). Para
- * conectar la interfaz a los microservicios reales basta con poner
- * `useMock: false` en `environment.ts`: ningún componente ni servicio cambia.
+ * UNA SOLA base de datos Supabase: ya no hay mock ni microservicios.
+ * Los servicios usan `SupabaseClientService` (fetch directo); los
+ * interceptores HTTP se conservan por compatibilidad y para futuros
+ * usos de `HttpClient`.
  */
-const interceptors: HttpInterceptorFn[] = environment.useMock
-  ? [authInterceptor, mockBackendInterceptor, errorInterceptor]
-  : [authInterceptor, errorInterceptor];
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withInterceptors(interceptors)),
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
   ],
 };

@@ -1,4 +1,4 @@
-<ui-page-header icon="settings" title="Configuración" subtitle="Apariencia y estado de conexión con los microservicios." />
+<ui-page-header icon="settings" title="Configuración" subtitle="Apariencia y estado de conexión con la base de datos única (Supabase)." />
 
 <div class="grid-2">
   <div class="card card-pad">
@@ -30,11 +30,11 @@
   </div>
 
   <div class="card card-pad">
-    <p class="section-label">Conexión con microservicios</p>
+    <p class="section-label">Conexión con Supabase</p>
     <div class="row between" style="padding:8px 0">
       <span class="small">Modo de datos</span>
-      <span class="badge" [class]="useMock ? 'badge-warning' : 'badge-success'">
-        <span class="badge-dot"></span>{{ useMock ? 'Simulado (mock)' : 'Backend real' }}
+      <span class="badge" [class]="supabaseConfigurado ? 'badge-success' : 'badge-warning'">
+        <span class="badge-dot"></span>{{ supabaseConfigurado ? 'Supabase conectado' : 'Falta configurar' }}
       </span>
     </div>
     <div class="divider mt-8"></div>
@@ -46,6 +46,6 @@
         </div>
       }
     </div>
-    <p class="hint mt-16">Las URLs se configuran en <code>environment.ts</code>. Con <code>useMock: false</code>, la app consume los microservicios reales sin cambios en los componentes.</p>
+    <p class="hint mt-16">La URL y el anon key se configuran en <code>environment.ts</code> (<code>supabase.url</code> / <code>supabase.anonKey</code>). Las tablas se crean con <code>supabase/schema.sql</code>: una sola base para pacientes, staff, citas, atenciones, usuarios y catálogos.</p>
   </div>
 </div>
