@@ -5,16 +5,14 @@
  * escribe contra el mismo proyecto Supabase vía `SupabaseClientService`.
  * Ya no hay 5 microservicios ni mock en memoria.
  *
- * Pasos:
- *  1. Crea un proyecto en https://supabase.com
- *  2. Ejecuta `supabase/schema.sql` en el SQL Editor (crea tablas + seeds)
- *  3. Pega aquí tu Project URL y anon public key (Settings > API)
+ * Proyecto: clinicadb
+ * URL: https://zhpjysqufzvhxtkklxst.supabase.co
  */
 export const environment = {
   production: false,
   supabase: {
-    url: 'https://TU-PROYECTO.supabase.co',
-    anonKey: 'TU-ANON-PUBLIC-KEY',
+    url: 'https://zhpjysqufzvhxtkklxst.supabase.co',
+    anonKey: 'sb_publishable_NNI4JVkPHAs5yPAKM_jfOg_Qok9iWUi',
   },
   /** Se mantiene por compatibilidad; ya no se usa (todo va a Supabase). */
   useMock: false,
