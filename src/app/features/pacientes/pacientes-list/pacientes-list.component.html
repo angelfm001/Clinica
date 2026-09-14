@@ -10,9 +10,50 @@
       <ui-icon name="search" [size]="16" />
       <input placeholder="Buscar por nombre, documento o teléfono…" (input)="onSearchInput($any($event.target).value)" />
     </div>
-    <button class="btn btn-secondary"><ui-icon name="filter" [size]="16" /> Filtros</button>
+    <button class="btn btn-secondary" (click)="toggleFiltros()">
+      <ui-icon name="filter" [size]="16" /> Filtros
+      @if (filtrosActivos()) { <span class="badge-dot" style="background:var(--brand-600)"></span> }
+    </button>
     <button class="btn btn-secondary" (click)="exportCsv()"><ui-icon name="download" [size]="16" /> Exportar</button>
   </div>
+
+  @if (filtrosAbiertos()) {
+    <div class="filters-row">
+      <div class="field" style="min-width:160px">
+        <label class="xs muted">Estado</label>
+        <select class="select" [value]="filtroActivo()" (change)="filtroActivo.set($any($event.target).value); onFiltroChange()">
+          <option value="todos">Todos</option>
+          <option value="true">Activo</option>
+          <option value="false">Inactivo</option>
+        </select>
+      </div>
+      <div class="field" style="min-width:160px">
+        <label class="xs muted">Sexo</label>
+        <select class="select" [value]="filtroSexo()" (change)="filtroSexo.set($any($event.target).value); onFiltroChange()">
+          <option value="">Todos</option>
+          <option value="M">Masculino</option>
+          <option value="F">Femenino</option>
+          <option value="O">Otro</option>
+        </select>
+      </div>
+      <div class="field" style="min-width:200px">
+        <label class="xs muted">Tipo de documento</label>
+        <select class="select" [value]="filtroTipoDocumento()" (change)="filtroTipoDocumento.set($any($event.target).value); onFiltroChange()">
+          <option value="">Todos</option>
+          <option value="DUI">DUI</option>
+          <option value="Pasaporte">Pasaporte</option>
+          <option value="NIT">NIT</option>
+          <option value="Carnet de Minoridad">Carnet de Minoridad</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      @if (filtrosActivos()) {
+        <button class="btn btn-secondary btn-sm" style="align-self:flex-end" (click)="limpiarFiltros()">
+          <ui-icon name="x" [size]="14" /> Limpiar filtros
+        </button>
+      }
+    </div>
+  }
 
   <div class="table-wrap">
     <table class="data">

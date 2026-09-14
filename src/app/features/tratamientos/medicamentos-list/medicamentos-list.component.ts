@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable, Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
@@ -34,6 +34,10 @@ export class MedicamentosListComponent {
   protected readonly pageSize = signal(10);
   protected readonly search = signal('');
 
+  protected readonly filtrosAbiertos = signal(false);
+  protected readonly filtroActivo = signal<'todos' | 'true' | 'false'>('todos');
+  protected readonly filtrosActivos = computed(() => this.filtroActivo() !== 'todos');
+
   protected readonly modalOpen = signal(false);
   protected readonly editing = signal<Medicamento | null>(null);
   protected readonly saving = signal(false);
@@ -58,7 +62,12 @@ export class MedicamentosListComponent {
 
   private load(): void {
     this.loading.set(true);
-    this.clinicalCareService.listMedicamentos({ page: this.page(), pageSize: this.pageSize(), search: this.search() }).subscribe({
+    this.clinicalCareService.listMedicamentos({
+      page: this.page(),
+      pageSize: this.pageSize(),
+      search: this.search(),
+      activo: this.filtroActivo() === 'todos' ? undefined : this.filtroActivo() === 'true',
+    }).subscribe({
       next: (res) => {
         this.medicamentos.set(res.items);
         this.total.set(res.total);
@@ -70,6 +79,20 @@ export class MedicamentosListComponent {
 
   protected onSearchInput(value: string): void {
     this.search$.next(value);
+  }
+
+  protected toggleFiltros(): void {
+    this.filtrosAbiertos.update((v) => !v);
+  }
+
+  protected onFiltroChange(): void {
+    this.page.set(1);
+    this.load();
+  }
+
+  protected limpiarFiltros(): void {
+    this.filtroActivo.set('todos');
+    this.onFiltroChange();
   }
 
   protected onPageChange(page: number): void {

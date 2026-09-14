@@ -74,6 +74,11 @@ export interface Medicamento {
 
 export type MedicamentoInput = Omit<Medicamento, 'medicamentoId'>;
 
+/** Filtros de catálogo, además del texto libre de `search`. Se resuelven contra la DB (Supabase). */
+export interface MedicamentoFiltro {
+  activo?: boolean;
+}
+
 export interface PrescripcionDetalle {
   prescripcionDetalleId?: number;
   medicamentoId: number;

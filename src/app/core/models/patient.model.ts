@@ -32,6 +32,13 @@ export interface Paciente {
   contactosEmergencia?: ContactoEmergencia[];
 }
 
+/** Filtros de listado, además del texto libre de `search`. Se resuelven contra la DB (Supabase). */
+export interface PacienteFiltro {
+  activo?: boolean;
+  sexo?: Sexo;
+  tipoDocumento?: TipoDocumento;
+}
+
 /** Payload de CreatePacienteCommand / UpdatePacienteCommand. */
 export type PacienteInput = Omit<
   Paciente,

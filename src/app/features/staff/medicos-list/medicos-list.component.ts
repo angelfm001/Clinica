@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
@@ -35,6 +35,13 @@ export class MedicosListComponent {
   protected readonly pageSize = signal(10);
   protected readonly search = signal('');
 
+  protected readonly filtrosAbiertos = signal(false);
+  protected readonly filtroActivo = signal<'todos' | 'true' | 'false'>('todos');
+  protected readonly filtroEspecialidad = signal<string>('');
+  protected readonly filtrosActivos = computed(
+    () => this.filtroActivo() !== 'todos' || this.filtroEspecialidad() !== '',
+  );
+
   protected readonly modalOpen = signal(false);
   protected readonly editing = signal<Medico | null>(null);
 
@@ -52,7 +59,13 @@ export class MedicosListComponent {
 
   private load(): void {
     this.loading.set(true);
-    this.staffService.listDoctors({ page: this.page(), pageSize: this.pageSize(), search: this.search() }).subscribe({
+    this.staffService.listDoctors({
+      page: this.page(),
+      pageSize: this.pageSize(),
+      search: this.search(),
+      activo: this.filtroActivo() === 'todos' ? undefined : this.filtroActivo() === 'true',
+      especialidadId: this.filtroEspecialidad() === '' ? undefined : Number(this.filtroEspecialidad()),
+    }).subscribe({
       next: (res) => {
         this.medicos.set(res.items);
         this.total.set(res.total);
@@ -64,6 +77,21 @@ export class MedicosListComponent {
 
   protected onSearchInput(value: string): void {
     this.search$.next(value);
+  }
+
+  protected toggleFiltros(): void {
+    this.filtrosAbiertos.update((v) => !v);
+  }
+
+  protected onFiltroChange(): void {
+    this.page.set(1);
+    this.load();
+  }
+
+  protected limpiarFiltros(): void {
+    this.filtroActivo.set('todos');
+    this.filtroEspecialidad.set('');
+    this.onFiltroChange();
   }
 
   protected onPageChange(page: number): void {

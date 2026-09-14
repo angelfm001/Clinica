@@ -23,6 +23,12 @@ export interface Medico {
 
 export type MedicoInput = Omit<Medico, 'medicoId' | 'especialidadNombre'>;
 
+/** Filtros de médicos, además del texto libre de `search`. Se resuelven contra la DB (Supabase). */
+export interface MedicoFiltro {
+  activo?: boolean;
+  especialidadId?: number;
+}
+
 export interface Consultorio {
   consultorioId: number;
   nombre: string;

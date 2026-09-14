@@ -7,7 +7,7 @@ import { SupabaseClientService } from './supabase-client.service';
 import { ToastService } from './toast.service';
 import { PageQuery, PagedResult } from '../models/common.model';
 import {
-  AbrirAtencionInput, Atencion, EstadoAtencion, Medicamento, MedicamentoInput,
+  AbrirAtencionInput, Atencion, EstadoAtencion, Medicamento, MedicamentoFiltro, MedicamentoInput,
   NotaMedica, Prescripcion, PrescripcionInput, SignosVitales, ViaAdministracion,
 } from '../models/clinical-care.model';
 
@@ -269,17 +269,18 @@ export class ClinicalCareService {
   }
 
   // ---------------------------------------------------------------- Treatment
-  listMedicamentos(query: PageQuery): Observable<PagedResult<Medicamento>> {
+  listMedicamentos(query: PageQuery & MedicamentoFiltro): Observable<PagedResult<Medicamento>> {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 10;
     const run = (async (): Promise<PagedResult<Medicamento>> => {
       let q = this.sb.client
         .from('medicamentos')
         .select('medicamento_id, nombre, principio_activo, presentacion, concentracion, activo', { count: 'exact' })
-        .order('medicamento_id')
+        .order('medicamento_id', { ascending: false })
         .range((page - 1) * pageSize, page * pageSize - 1);
       const s = (query.search ?? '').trim();
       if (s) q = q.or(`nombre.ilike.%${s}%,principio_activo.ilike.%${s}%`);
+      if (query.activo !== undefined) q = q.eq('activo', query.activo);
       const { data, error, count } = await q;
       if (error) throw this.sb.toHttpError(error);
       const items = ((data ?? []) as {

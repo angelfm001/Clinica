@@ -6,7 +6,7 @@ import { catchError, map } from 'rxjs/operators';
 import { SupabaseClientService } from './supabase-client.service';
 import { ToastService } from './toast.service';
 import { PageQuery, PagedResult } from '../models/common.model';
-import { Consultorio, DiaSemana, Especialidad, HorarioMedico, HorarioMedicoInput, Medico, MedicoInput } from '../models/staff.model';
+import { Consultorio, DiaSemana, Especialidad, HorarioMedico, HorarioMedicoInput, Medico, MedicoFiltro, MedicoInput } from '../models/staff.model';
 
 type MedicoRow = {
   medico_id: number; nombres: string; apellidos: string; licencia: string;
@@ -61,17 +61,19 @@ export class StaffService {
   }
 
   // ------------------------------------------------------------------ Médicos
-  listDoctors(query: PageQuery): Observable<PagedResult<Medico>> {
+  listDoctors(query: PageQuery & MedicoFiltro): Observable<PagedResult<Medico>> {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 10;
     const run = (async (): Promise<PagedResult<Medico>> => {
       let q = this.sb.client
         .from('medicos')
         .select(MEDICO_SELECT, { count: 'exact' })
-        .order('medico_id')
+        .order('medico_id', { ascending: false })
         .range((page - 1) * pageSize, page * pageSize - 1);
       const s = (query.search ?? '').trim();
       if (s) q = q.or(`nombres.ilike.%${s}%,apellidos.ilike.%${s}%`);
+      if (query.activo !== undefined) q = q.eq('activo', query.activo);
+      if (query.especialidadId !== undefined) q = q.eq('especialidad_id', query.especialidadId);
       const { data, error, count } = await q;
       if (error) throw this.sb.toHttpError(error);
       return { items: ((data ?? []) as unknown as MedicoRow[]).map(toMedico), total: count ?? 0, page, pageSize };

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
@@ -6,7 +6,7 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { PatientService } from '../../../core/services/patient.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
-import { Paciente } from '../../../core/models/patient.model';
+import { Paciente, Sexo, TipoDocumento } from '../../../core/models/patient.model';
 import { IconComponent } from '../../../shared/ui/icon/icon.component';
 import { PageHeaderComponent } from '../../../shared/ui/page-header/page-header.component';
 import { PaginationComponent } from '../../../shared/ui/pagination/pagination.component';
@@ -42,6 +42,14 @@ export class PacientesListComponent {
   protected readonly pageSize = signal(10);
   protected readonly search = signal('');
 
+  protected readonly filtrosAbiertos = signal(false);
+  protected readonly filtroActivo = signal<'todos' | 'true' | 'false'>('todos');
+  protected readonly filtroSexo = signal<Sexo | ''>('');
+  protected readonly filtroTipoDocumento = signal<TipoDocumento | ''>('');
+  protected readonly filtrosActivos = computed(
+    () => this.filtroActivo() !== 'todos' || !!this.filtroSexo() || !!this.filtroTipoDocumento(),
+  );
+
   protected readonly modalOpen = signal(false);
   protected readonly editingPaciente = signal<Paciente | null>(null);
 
@@ -62,7 +70,14 @@ export class PacientesListComponent {
 
   private load(): void {
     this.loading.set(true);
-    this.patientService.list({ page: this.page(), pageSize: this.pageSize(), search: this.search() }).subscribe({
+    this.patientService.list({
+      page: this.page(),
+      pageSize: this.pageSize(),
+      search: this.search(),
+      activo: this.filtroActivo() === 'todos' ? undefined : this.filtroActivo() === 'true',
+      sexo: this.filtroSexo() || undefined,
+      tipoDocumento: this.filtroTipoDocumento() || undefined,
+    }).subscribe({
       next: (res) => {
         this.pacientes.set(res.items);
         this.total.set(res.total);
@@ -70,6 +85,22 @@ export class PacientesListComponent {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  protected toggleFiltros(): void {
+    this.filtrosAbiertos.update((v) => !v);
+  }
+
+  protected onFiltroChange(): void {
+    this.page.set(1);
+    this.load();
+  }
+
+  protected limpiarFiltros(): void {
+    this.filtroActivo.set('todos');
+    this.filtroSexo.set('');
+    this.filtroTipoDocumento.set('');
+    this.onFiltroChange();
   }
 
   protected onSearchInput(value: string): void {

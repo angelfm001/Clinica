@@ -6,7 +6,7 @@ import { catchError, map } from 'rxjs/operators';
 import { SupabaseClientService } from './supabase-client.service';
 import { ToastService } from './toast.service';
 import { PageQuery, PagedResult } from '../models/common.model';
-import { ContactoEmergencia, ContactoEmergenciaInput, Paciente, PacienteInput, Sexo, TipoDocumento } from '../models/patient.model';
+import { ContactoEmergencia, ContactoEmergenciaInput, Paciente, PacienteFiltro, PacienteInput, Sexo, TipoDocumento } from '../models/patient.model';
 
 type PacienteRow = {
   paciente_id: number; codigo_paciente: string; tipo_documento: string;
@@ -83,17 +83,21 @@ export class PatientService {
     });
   }
 
-  list(query: PageQuery): Observable<PagedResult<Paciente>> {
+  list(query: PageQuery & PacienteFiltro): Observable<PagedResult<Paciente>> {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 10;
     const run = (async (): Promise<PagedResult<Paciente>> => {
       let q = this.sb.client
         .from('pacientes')
         .select(PACIENTE_SELECT, { count: 'exact' })
-        .order('paciente_id', { ascending: true })
+        .order('fecha_registro', { ascending: false })
+        .order('paciente_id', { ascending: false })
         .range((page - 1) * pageSize, page * pageSize - 1);
       const s = (query.search ?? '').trim();
       if (s) q = q.or(`nombres.ilike.%${s}%,apellidos.ilike.%${s}%,numero_documento.ilike.%${s}%,telefono.ilike.%${s}%`);
+      if (query.activo !== undefined) q = q.eq('activo', query.activo);
+      if (query.sexo) q = q.eq('sexo', query.sexo);
+      if (query.tipoDocumento) q = q.eq('tipo_documento', query.tipoDocumento);
       const { data, error, count } = await q;
       if (error) throw this.sb.toHttpError(error);
       return { items: ((data ?? []) as unknown as PacienteRow[]).map(toPaciente), total: count ?? 0, page, pageSize };
