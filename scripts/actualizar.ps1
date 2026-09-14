@@ -17,6 +17,11 @@
     "C:\...\Clinica" o desde "C:\...\Clinica\scripts", o desde cualquier
     otra carpeta.
 
+  Rama:
+    Si no pasas -Branch, se usa la rama en la que estés parado actualmente
+    (no siempre "main"). Así el pull --rebase y el push actúan sobre tu
+    rama actual y no sobre otra por error.
+
   Uso:
     .\scripts\git-sync.ps1
     .\scripts\git-sync.ps1 -Message "Filtros de pacientes y notificaciones en tiempo real"
@@ -25,7 +30,7 @@
 param(
     [string]$Message,
     [string]$Remote = "origin",
-    [string]$Branch = "main"
+    [string]$Branch
 )
 
 $ErrorActionPreference = "Stop"
@@ -33,6 +38,11 @@ $ErrorActionPreference = "Stop"
 # Este script vive en <repo>/scripts, así que la raíz del repo es un nivel arriba.
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $repoRoot
+
+# Si no se pasó -Branch, se usa la rama actual (evita pull/push contra la rama equivocada).
+if (-not $Branch) {
+    $Branch = git rev-parse --abbrev-ref HEAD
+}
 
 # Si no se pasó -Message, se busca scripts\commit-message.txt.
 if (-not $Message) {
