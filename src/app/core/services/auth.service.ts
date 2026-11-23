@@ -1,10 +1,18 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 import { Router } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
 import { LoginRequest, LoginResponse, RolNombre, UsuarioSesion } from '../models/security.model';
+import { ApiEnvelope, unwrap } from './api-utils';
+
+/** Forma de `LoginResponse` / `UsuarioDto` en MedicalAppointments.Security. */
+interface LoginResponseApi {
+  token: string;
+  expiraEn: string;
+  usuario: { id: number; username: string; nombre: string; rolId: number; rol: RolNombre; medicoId?: number | null };
+}
 
 const STORAGE_KEY = 'cm.session';
 
@@ -44,7 +52,21 @@ export class AuthService {
   }
 
   login(request: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, request).pipe(
+    const body = { username: request.nombreUsuario, password: request.contrasena };
+    return this.http.post<ApiEnvelope<LoginResponseApi>>(`${this.baseUrl}/auth/login`, body).pipe(
+      unwrap<LoginResponseApi>(),
+      map((res): LoginResponse => ({
+        token: res.token,
+        expiraEn: res.expiraEn,
+        usuario: {
+          usuarioId: res.usuario.id,
+          nombreUsuario: res.usuario.username,
+          nombreCompleto: res.usuario.nombre,
+          email: '',
+          rol: res.usuario.rol,
+          medicoId: res.usuario.medicoId ?? null,
+        },
+      })),
       tap((res) => {
         const stored: StoredSession = { token: res.token, usuario: res.usuario, expiraEn: res.expiraEn };
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
@@ -53,8 +75,8 @@ export class AuthService {
     );
   }
 
+  /** El JWT no tiene estado en el servidor (Security no expone /auth/logout): basta con descartarlo. */
   logout(): void {
-    this.http.post(`${this.baseUrl}/auth/logout`, {}).subscribe({ complete: () => undefined, error: () => undefined });
     sessionStorage.removeItem(STORAGE_KEY);
     this.session.set(null);
     this.router.navigateByUrl('/login');

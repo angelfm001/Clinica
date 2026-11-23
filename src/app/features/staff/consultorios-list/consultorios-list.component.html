@@ -1,6 +1,8 @@
 <div class="toolbar">
   <p class="grow muted small" style="align-self:center">Catálogo de espacios físicos de atención.</p>
-  <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nuevo consultorio</button>
+  @if (puedeEditar) {
+    <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nuevo consultorio</button>
+  }
 </div>
 
 <div class="table-wrap">
@@ -17,12 +19,14 @@
             </span>
           </td>
           <td>
-            <div class="row-actions">
-              <button class="icon-btn" (click)="openEdit(c)" title="Editar"><ui-icon name="pencil" [size]="14" /></button>
-              <button class="icon-btn" [class.danger]="c.activo" (click)="toggleActivo(c)" [title]="c.activo ? 'Desactivar' : 'Activar'">
-                <ui-icon [name]="c.activo ? 'trash' : 'refresh'" [size]="14" />
-              </button>
-            </div>
+            @if (puedeEditar) {
+              <div class="row-actions">
+                <button class="icon-btn" (click)="openEdit(c)" title="Editar"><ui-icon name="pencil" [size]="14" /></button>
+                <button class="icon-btn" [class.danger]="c.activo" (click)="toggleActivo(c)" [title]="c.activo ? 'Desactivar' : 'Activar'">
+                  <ui-icon [name]="c.activo ? 'trash' : 'refresh'" [size]="14" />
+                </button>
+              </div>
+            }
           </td>
         </tr>
       }

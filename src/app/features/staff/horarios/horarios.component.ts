@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { StaffService } from '../../../core/services/staff.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Consultorio, DIAS_SEMANA, DiaSemana, HorarioMedico, Medico } from '../../../core/models/staff.model';
@@ -30,6 +31,8 @@ export class HorariosComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly staffService = inject(StaffService);
   private readonly confirm = inject(ConfirmService);
+  /** Staff y el catálogo de medicamentos solo aceptan cambios del rol Administrador. */
+  protected readonly puedeEditar = inject(AuthService).hasRol('Administrador');
   private readonly toast = inject(ToastService);
 
   protected readonly medicoId = Number(this.route.snapshot.paramMap.get('id'));

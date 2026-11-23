@@ -44,7 +44,9 @@
         <button class="btn btn-primary btn-block" (click)="iniciarAtencion()"><ui-icon name="stethoscope" [size]="15" /> Cambiar a En atención</button>
       }
       @if (c.estado === 'En atencion' && auth.hasRol('Medico', 'Administrador')) {
-        <button class="btn btn-primary btn-block" (click)="irAAtencion()"><ui-icon name="arrowRight" [size]="15" /> Ir a Atención Clínica</button>
+        @if (auth.hasRol('Medico')) {
+          <button class="btn btn-primary btn-block" (click)="irAAtencion()"><ui-icon name="arrowRight" [size]="15" /> Ir a Atención Clínica</button>
+        }
         <button class="btn btn-success btn-block" (click)="marcarAtendida()"><ui-icon name="checkCircle" [size]="15" /> Marcar como Atendida</button>
       }
       @if (!['Cancelada', 'Atendida'].includes(c.estado)) {

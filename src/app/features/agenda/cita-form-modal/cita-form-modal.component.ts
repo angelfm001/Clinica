@@ -151,9 +151,9 @@ export class CitaFormModalComponent {
     }
     this.saving.set(true);
     const value = this.form.getRawValue();
-    // Consultorio simplificado: se asume el mismo consultorio 1 para el prototipo
-    // (Appointment solo persiste el ConsultorioId, no la especialidad).
-    const consultorioId = 1;
+    // El consultorio sale del horario del médico que cubre el slot elegido
+    // (Appointment valida contra Staff que médico y consultorio estén libres).
+    const consultorioId = this.slots().find((s) => s.hora === value.hora)?.consultorioId ?? 0;
     this.appointmentService.create({
       pacienteId: paciente.pacienteId,
       medicoId: Number(value.medicoId),

@@ -1,5 +1,7 @@
 <ui-page-header icon="pill" title="Tratamientos" subtitle="Catálogo de medicamentos disponibles para prescripción.">
-  <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nuevo medicamento</button>
+  @if (puedeEditar) {
+    <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nuevo medicamento</button>
+  }
 </ui-page-header>
 
 <div class="card">
@@ -30,8 +32,10 @@
               </td>
               <td>
                 <div class="row-actions">
-                  <button class="icon-btn" (click)="openEdit(m)" title="Editar"><ui-icon name="pencil" [size]="14" /></button>
-                  <button class="icon-btn danger" (click)="deactivate(m)" title="Desactivar"><ui-icon name="trash" [size]="14" /></button>
+                  @if (puedeEditar) {
+                    <button class="icon-btn" (click)="openEdit(m)" title="Editar"><ui-icon name="pencil" [size]="14" /></button>
+                    <button class="icon-btn danger" (click)="deactivate(m)" title="Desactivar"><ui-icon name="trash" [size]="14" /></button>
+                  }
                 </div>
               </td>
             </tr>

@@ -13,7 +13,7 @@ export const NAV_PRINCIPAL: NavItem[] = [
   { label: 'Inicio', icon: 'home', route: '/inicio' },
   { label: 'Pacientes', icon: 'users', route: '/pacientes' },
   { label: 'Citas', icon: 'calendar', route: '/agenda' },
-  { label: 'Clínica', icon: 'stethoscope', route: '/clinica', roles: ['Medico', 'Administrador'] },
+  { label: 'Clínica', icon: 'stethoscope', route: '/clinica', roles: ['Medico'] },
   { label: 'Tratamientos', icon: 'pill', route: '/tratamientos', roles: ['Medico', 'Administrador'] },
   { label: 'Personal', icon: 'clipboard', route: '/staff', roles: ['Administrador', 'Recepcion'] },
   { label: 'Reportes', icon: 'chart', route: '/reportes' },

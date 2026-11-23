@@ -1,24 +1,22 @@
 /**
  * Configuración de desarrollo.
  *
- * `useMock` en true intercepta las peticiones HTTP y las responde con datos en
- * memoria (ver core/mock). Los servicios, endpoints y modelos son los reales:
- * al levantar los microservicios basta con poner `useMock: false` y ajustar las
- * URLs de cada API (o apuntar todas al API Gateway).
+ * La interfaz consume los 5 microservicios reales de MedicalAppointments
+ * (Security, Patient, Staff, Appointment y ClinicalCare). Las URLs son
+ * relativas: `ng serve` las reenvía a cada API con `proxy.conf.json`
+ * (por ejemplo `/api/staff/doctors` → `http://localhost:5250/doctors`), así el
+ * navegador ve un solo origen y no hace falta habilitar CORS en el backend.
  *
- * 5 microservicios (planificación reducida): Security, Patient, Staff,
- * Appointment y ClinicalCare (fusiona MedicalRecord + Treatment).
+ * Puertos (perfil "http" de cada launchSettings.json):
+ *   Security 5248 · Patient 5244 · Staff 5250 · Appointment 5246 · ClinicalCare 5252
  */
 export const environment = {
   production: false,
-  useMock: true,
-  /** API Gateway. Si se usa, todas las rutas cuelgan de aquí. */
-  apiGateway: 'http://localhost:5000',
   api: {
-    security: 'http://localhost:5100',
-    patient: 'http://localhost:5268',
-    staff: 'http://localhost:5200',
-    appointment: 'http://localhost:5300',
-    clinicalCare: 'http://localhost:5400',
+    security: '/api/security',
+    patient: '/api/patient',
+    staff: '/api/staff',
+    appointment: '/api/appointment',
+    clinicalCare: '/api/clinical-care',
   },
 };

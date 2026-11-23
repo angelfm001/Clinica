@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable, Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { ClinicalCareService } from '../../../core/services/clinical-care.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { Medicamento } from '../../../core/models/clinical-care.model';
@@ -25,6 +26,8 @@ export class MedicamentosListComponent {
   private readonly clinicalCareService = inject(ClinicalCareService);
   private readonly toast = inject(ToastService);
   private readonly confirm = inject(ConfirmService);
+  /** Staff y el catálogo de medicamentos solo aceptan cambios del rol Administrador. */
+  protected readonly puedeEditar = inject(AuthService).hasRol('Administrador');
   private readonly fb = inject(FormBuilder);
 
   protected readonly loading = signal(true);

@@ -3,7 +3,9 @@
     <ui-icon name="search" [size]="16" />
     <input placeholder="Buscar por nombre o especialidad…" (input)="onSearchInput($any($event.target).value)" />
   </div>
-  <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nuevo médico</button>
+  @if (puedeEditar) {
+    <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nuevo médico</button>
+  }
 </div>
 
 <div class="table-wrap">
@@ -34,8 +36,10 @@
             <td>
               <div class="row-actions">
                 <button class="icon-btn" (click)="goHorarios(m)" title="Horarios"><ui-icon name="calendar" [size]="15" /></button>
-                <button class="icon-btn" (click)="openEdit(m)" title="Editar"><ui-icon name="pencil" [size]="15" /></button>
-                <button class="icon-btn danger" (click)="deactivate(m)" title="Desactivar"><ui-icon name="trash" [size]="15" /></button>
+                @if (puedeEditar) {
+                  <button class="icon-btn" (click)="openEdit(m)" title="Editar"><ui-icon name="pencil" [size]="15" /></button>
+                  <button class="icon-btn danger" (click)="deactivate(m)" title="Desactivar"><ui-icon name="trash" [size]="15" /></button>
+                }
               </div>
             </td>
           </tr>

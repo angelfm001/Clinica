@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 
 import { StaffService } from '../../../core/services/staff.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { Consultorio } from '../../../core/models/staff.model';
@@ -22,6 +23,8 @@ export class ConsultoriosListComponent {
   private readonly staffService = inject(StaffService);
   private readonly toast = inject(ToastService);
   private readonly confirm = inject(ConfirmService);
+  /** Staff y el catálogo de medicamentos solo aceptan cambios del rol Administrador. */
+  protected readonly puedeEditar = inject(AuthService).hasRol('Administrador');
   private readonly fb = inject(FormBuilder);
 
   protected readonly loading = signal(true);

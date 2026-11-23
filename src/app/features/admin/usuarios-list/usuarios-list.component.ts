@@ -1,3 +1,4 @@
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable, Subject, debounceTime, distinctUntilChanged } from 'rxjs';
@@ -47,7 +48,8 @@ export class UsuariosListComponent {
   protected readonly form = this.fb.nonNullable.group({
     nombreUsuario: ['', Validators.required],
     nombreCompleto: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
+    // Security no guarda email: el control se conserva solo para cumplir con UsuarioInput.
+    email: [''],
     contrasena: [''],
     rolId: [0, Validators.required],
     medicoId: [null as number | null],
@@ -55,8 +57,9 @@ export class UsuariosListComponent {
   });
 
   /** El rol "Médico" habilita el selector para vincular la cuenta a un registro de Staff. */
+  private readonly rolIdValue = toSignal(this.form.controls.rolId.valueChanges, { initialValue: this.form.controls.rolId.value });
   protected readonly esRolMedico = computed(() => {
-    const rolId = this.form.controls.rolId.value;
+    const rolId = this.rolIdValue();
     return this.roles().find((r) => r.rolId === Number(rolId))?.nombre === 'Medico';
   });
 
@@ -101,6 +104,7 @@ export class UsuariosListComponent {
   protected openCreate(): void {
     this.editing.set(null);
     this.form.reset({ rolId: this.roles()[0]?.rolId ?? 0, medicoId: null, activo: true });
+    this.form.controls.nombreUsuario.enable();
     this.form.controls.contrasena.setValidators([Validators.required, Validators.minLength(6)]);
     this.form.controls.contrasena.updateValueAndValidity();
     this.modalOpen.set(true);
@@ -109,6 +113,8 @@ export class UsuariosListComponent {
   protected openEdit(u: Usuario): void {
     this.editing.set(u);
     this.form.reset({ nombreUsuario: u.nombreUsuario, nombreCompleto: u.nombreCompleto, email: u.email, rolId: u.rolId, medicoId: u.medicoId ?? null, activo: u.activo, contrasena: '' });
+    // Security no permite cambiar el username de una cuenta existente.
+    this.form.controls.nombreUsuario.disable();
     this.form.controls.contrasena.clearValidators();
     this.form.controls.contrasena.updateValueAndValidity();
     this.modalOpen.set(true);

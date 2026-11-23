@@ -26,7 +26,9 @@
     </div>
     <div class="hero-actions">
       <button class="btn btn-secondary" (click)="openEdit()"><ui-icon name="pencil" [size]="15" /> Editar</button>
-      <button class="btn btn-primary" (click)="goExpediente()"><ui-icon name="stethoscope" [size]="15" /> Expediente clínico</button>
+      @if (puedeVerExpediente) {
+        <button class="btn btn-primary" (click)="goExpediente()"><ui-icon name="stethoscope" [size]="15" /> Ver expediente</button>
+      }
     </div>
   </div>
 
@@ -39,8 +41,9 @@
         <ui-icon name="phone" [size]="15" /> Contactos de emergencia
         @if (contactos().length) { <span class="tab-count">{{ contactos().length }}</span> }
       </button>
-      <button class="tab" [class.active]="tab() === 'historial'" (click)="setTab('historial')">
-        <ui-icon name="clipboard" [size]="15" /> Historial clínico
+      <button class="tab" [class.active]="tab() === 'citas'" (click)="setTab('citas')">
+        <ui-icon name="calendar" [size]="15" /> Citas
+        @if (citas().length) { <span class="tab-count">{{ citas().length }}</span> }
       </button>
     </div>
 
@@ -91,13 +94,36 @@
             }
           </div>
         }
-        @case ('historial') {
+        @case ('citas') {
           <div class="tab-panel">
-            <ui-empty-state icon="stethoscope" title="Historial clínico completo" subtitle="Consulta expediente, antecedentes, alergias y atenciones anteriores.">
-              <button class="btn btn-primary btn-sm mt-12" (click)="goExpediente()">
-                <ui-icon name="arrowRight" [size]="14" /> Ir al expediente clínico
-              </button>
-            </ui-empty-state>
+            @if (puedeVerExpediente) {
+              <div class="row between" style="margin-bottom:14px">
+                <p class="muted small">Atenciones, diagnósticos, tratamientos, alergias y antecedentes están en el expediente clínico.</p>
+                <button class="btn btn-secondary btn-sm" (click)="goExpediente()"><ui-icon name="stethoscope" [size]="14" /> Ver expediente</button>
+              </div>
+            }
+            @if (loadingCitas()) {
+              <div class="skeleton" style="height:120px;border-radius:10px"></div>
+            } @else if (citas().length === 0) {
+              <ui-empty-state icon="calendar" title="Sin citas registradas" subtitle="Las citas agendadas para este paciente aparecerán aquí." />
+            } @else {
+              <div class="table-wrap">
+                <table class="data">
+                  <thead><tr><th>Fecha</th><th>Médico</th><th>Especialidad</th><th>Motivo</th><th>Estado</th></tr></thead>
+                  <tbody>
+                    @for (c of citas(); track c.citaId) {
+                      <tr>
+                        <td class="strong">{{ c.fecha }} · {{ c.hora }}</td>
+                        <td>{{ c.medicoNombre }}</td>
+                        <td>{{ c.especialidadNombre || '—' }}</td>
+                        <td>{{ c.motivo || '—' }}</td>
+                        <td><ui-estado-cita-badge [estado]="c.estado" /></td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
           </div>
         }
       }

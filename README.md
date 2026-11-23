@@ -1,5 +1,39 @@
 # Interfaz clinica
 
+## Conexión con el backend
+
+La interfaz consume los 5 microservicios de `MedicalAppointments` (carpeta `src` del repositorio padre).
+
+1. Levantar el backend y la interfaz: desde la raíz del repositorio, `.\scripts\levantar-todo.ps1`
+   (o cada API con `dotnet run --project <Api> --launch-profile http` y aquí `npm start`).
+2. Abrir `http://localhost:4200` e iniciar sesión con uno de los usuarios de demostración (uno por rol,
+   sembrados en Development; también están como accesos rápidos en el login):
+
+| Usuario | Contraseña | Rol | Puede |
+|---|---|---|---|
+| `admin` | `Admin123!` | Administrador | Pacientes, agendar citas, Personal y medicamentos (crear/editar), usuarios, reportes |
+| `recepcion` | `Recepcion123!` | Recepcion | Pacientes, agendar y cambiar estado de citas, ver Personal, reportes |
+| `medico` | `Medico123!` | Medico | Pacientes, cambiar estado de citas, Clínica (atención, expediente, prescripciones), ver medicamentos |
+
+`medico` está enlazado al médico que siembra Staff (`Seed:Medico` en su `appsettings.Development.json`, con horario de lunes a viernes).
+La interfaz solo muestra a cada rol lo que su microservicio le permite (por ejemplo, la atención clínica es exclusiva del rol Médico en ClinicalCare).
+
+`ng serve` usa `proxy.conf.json` para reenviar `/api/<servicio>/...` al puerto de cada API, así que no hace falta CORS:
+
+| Ruta en la interfaz | Microservicio | Puerto |
+|---|---|---|
+| `/api/security` | Security | 5248 |
+| `/api/patient` | Patient | 5244 |
+| `/api/staff` | Staff | 5250 |
+| `/api/appointment` | Appointment | 5246 |
+| `/api/clinical-care` | ClinicalCare | 5252 |
+
+Los servicios de `src/app/core/services` traducen entre los DTOs del backend (sobre `HttpResponse<T>`, `id`, `EnAtencion`, día 0 = domingo…) y los modelos de la interfaz, así que los componentes no dependen del formato del backend.
+
+Para agregar otro médico con acceso: como administrador, crearlo en *Personal* con sus horarios y luego, en *Usuarios y Roles*, una cuenta con rol `Medico` vinculada a ese médico.
+
+---
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.22.
 
 ## Development server

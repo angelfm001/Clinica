@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { StaffService } from '../../../core/services/staff.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { Especialidad, Medico } from '../../../core/models/staff.model';
@@ -25,6 +26,8 @@ export class MedicosListComponent {
   private readonly staffService = inject(StaffService);
   private readonly toast = inject(ToastService);
   private readonly confirm = inject(ConfirmService);
+  /** Staff y el catálogo de medicamentos solo aceptan cambios del rol Administrador. */
+  protected readonly puedeEditar = inject(AuthService).hasRol('Administrador');
   private readonly router = inject(Router);
 
   protected readonly loading = signal(true);

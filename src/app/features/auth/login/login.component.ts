@@ -6,7 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { IconComponent } from '../../../shared/ui/icon/icon.component';
 
-interface DemoUser { user: string; label: string; }
+interface DemoUser { user: string; password: string; label: string; }
 
 /** Pantalla pública de autenticación contra MedicalAppointments.Security. */
 @Component({
@@ -28,10 +28,11 @@ export class LoginComponent {
   protected readonly showPassword = signal(false);
   protected readonly errorMsg = signal<string | null>(null);
 
+  /** Usuarios que siembra Security en Development (sección Seed de su appsettings.Development.json). */
   protected readonly demoUsers: DemoUser[] = [
-    { user: 'amartinez', label: 'Recepción' },
-    { user: 'lmartinez', label: 'Médico' },
-    { user: 'admin', label: 'Administrador' },
+    { user: 'recepcion', password: 'Recepcion123!', label: 'Recepción' },
+    { user: 'medico', password: 'Medico123!', label: 'Médico' },
+    { user: 'admin', password: 'Admin123!', label: 'Administrador' },
   ];
 
   protected readonly form = this.fb.nonNullable.group({
@@ -43,8 +44,8 @@ export class LoginComponent {
     this.showPassword.update((v) => !v);
   }
 
-  protected fillDemo(user: string): void {
-    this.form.patchValue({ nombreUsuario: user, contrasena: 'demo1234' });
+  protected fillDemo(demo: DemoUser): void {
+    this.form.patchValue({ nombreUsuario: demo.user, contrasena: demo.password });
     this.errorMsg.set(null);
   }
 
@@ -64,7 +65,11 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMsg.set(err?.error?.detail ?? 'Usuario o contraseña incorrectos.');
+        this.errorMsg.set(
+          err?.status === 0
+            ? 'No se pudo conectar con el microservicio de Security.'
+            : (err?.error?.errorMessage ?? err?.error?.detail ?? 'Usuario o contraseña incorrectos.'),
+        );
       },
     });
   }

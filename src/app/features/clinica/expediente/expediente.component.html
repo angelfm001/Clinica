@@ -8,80 +8,318 @@
   <div class="patient-hero card">
     <span class="avatar hero-avatar">{{ (p.nombres + ' ' + p.apellidos) | iniciales }}</span>
     <div class="grow">
-      <h1>{{ p.nombres }} {{ p.apellidos }}</h1>
-      <p class="muted small mt-8">{{ p.codigoPaciente }} · {{ p.fechaNacimiento | edad }} · {{ p.tipoSangre || 'Tipo de sangre no registrado' }}</p>
+      <div class="row gap-10 wrap">
+        <h1>{{ p.nombres }} {{ p.apellidos }}</h1>
+        @if (expediente(); as e) { <span class="badge badge-info mono">{{ e.numeroExpediente }}</span> }
+      </div>
+      <p class="muted small mt-8">
+        {{ p.codigoPaciente }} · {{ p.fechaNacimiento | edad }} · {{ p.tipoSangre || 'Tipo de sangre no registrado' }}
+        @if (expediente(); as e) { · Expediente abierto el {{ e.fechaApertura.slice(0, 10) }} }
+      </p>
     </div>
   </div>
 
-  <div class="expediente-grid mt-20">
-    <div class="card">
-      <div class="card-head"><span class="card-title">Historial de atenciones</span></div>
-      <div class="card-pad">
-        @if (atenciones().length === 0) {
-          <ui-empty-state icon="stethoscope" title="Sin atenciones previas" subtitle="El historial se construye a partir de cada atención registrada." />
-        } @else {
-          <div class="timeline">
-            @for (at of atenciones(); track at.atencionId) {
-              <div class="timeline-item">
-                <span class="timeline-dot"></span>
-                <div class="collapsible-head" style="padding:0 0 6px" (click)="toggleAtencion(at.atencionId)">
-                  <div>
-                    <b class="small">{{ at.motivoConsulta || 'Consulta' }}</b>
-                    <p class="xs muted mt-8">{{ at.fechaAtencion }} · {{ at.medicoNombre }}</p>
-                  </div>
-                  <ui-icon [name]="atencionExpandida() === at.atencionId ? 'chevronDown' : 'chevronRight'" [size]="15" />
-                </div>
-                @if (atencionExpandida() === at.atencionId) {
-                  <div class="atencion-expand">
-                    @if (at.diagnostico) {
-                      <p class="xs strong">Diagnóstico:</p>
-                      <p class="small mt-8">{{ at.diagnostico }}</p>
-                    }
-                    @if (at.notas.length) {
-                      <p class="xs strong mt-12">Notas:</p>
-                      @for (n of at.notas; track n.notaMedicaId) { <p class="small mt-8">{{ n.nota }}</p> }
-                    }
-                    @if (!at.diagnostico && !at.notas.length) {
-                      <p class="xs muted">Sin diagnóstico ni notas registradas en esta atención.</p>
-                    }
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        }
+  @if (alergias().length) {
+    <div class="allergy-alert mt-20" [class.severe]="alergiasSeveras().length">
+      <ui-icon name="alertTriangle" [size]="18" />
+      <div>
+        <b class="small">Alergias registradas</b>
+        <div class="row gap-4 wrap mt-8">
+          @for (a of alergias(); track a.alergiaId) {
+            <span class="badge" [class]="claseSeveridad(a.severidad)">{{ a.sustancia }} · {{ a.severidad }}</span>
+          }
+        </div>
       </div>
     </div>
+  }
 
-    <div class="card">
-      <div class="card-head"><span class="card-title">Prescripciones</span></div>
-      <div class="card-pad">
-        @if (prescripciones().length === 0) {
-          <ui-empty-state icon="pill" title="Sin prescripciones emitidas" />
-        } @else {
-          <div class="stack gap-10">
-            @for (rx of prescripciones(); track rx.prescripcionId) {
-              <div class="rx-card">
-                <div class="collapsible-head" style="padding:12px" (click)="toggleReceta(rx.prescripcionId)">
-                  <div>
-                    <b class="small">RX-{{ rx.prescripcionId }}</b>
-                    <p class="xs muted mt-8">{{ rx.fecha }} · {{ rx.medicoNombre }} · {{ rx.detalles.length }} medicamento(s)</p>
-                  </div>
-                  <ui-icon [name]="recetaExpandida() === rx.prescripcionId ? 'chevronDown' : 'chevronRight'" [size]="15" />
+  <div class="card mt-20">
+    <div class="tabs no-print">
+      <button class="tab" [class.active]="tab() === 'resumen'" (click)="setTab('resumen')">
+        <ui-icon name="alertCircle" [size]="15" /> Alergias y antecedentes
+      </button>
+      <button class="tab" [class.active]="tab() === 'habitos'" (click)="setTab('habitos')">
+        <ui-icon name="activity" [size]="15" /> Hábitos y observaciones
+      </button>
+      <button class="tab" [class.active]="tab() === 'citas'" (click)="setTab('citas')">
+        <ui-icon name="calendar" [size]="15" /> Citas
+        @if (citas().length) { <span class="tab-count">{{ citas().length }}</span> }
+      </button>
+      <button class="tab" [class.active]="tab() === 'historial'" (click)="setTab('historial')">
+        <ui-icon name="pill" [size]="15" /> Atenciones y tratamientos
+        @if (atenciones().length) { <span class="tab-count">{{ atenciones().length }}</span> }
+      </button>
+    </div>
+
+    <div class="card-pad">
+      @if (!puedeEditar) {
+        <p class="readonly-note no-print"><ui-icon name="eye" [size]="14" /> Modo lectura: solo el médico puede modificar el expediente.</p>
+      }
+      @if (!expediente() && (tab() === 'resumen' || tab() === 'habitos')) {
+        <ui-empty-state icon="fileText" title="Expediente no disponible" subtitle="No fue posible abrir el expediente del paciente. Intenta recargar la página." />
+      } @else {
+        @switch (tab()) {
+          @case ('resumen') {
+            <div class="expediente-grid tab-panel">
+              <!-- Alergias -->
+              <section class="section-box">
+                <div class="row between">
+                  <span class="card-title">Alergias</span>
+                  @if (puedeEditar) {
+                    <button class="btn btn-secondary btn-sm" (click)="toggleFormAlergia()">
+                      <ui-icon [name]="mostrarFormAlergia() ? 'x' : 'plus'" [size]="14" /> {{ mostrarFormAlergia() ? 'Cancelar' : 'Agregar' }}
+                    </button>
+                  }
                 </div>
-                @if (recetaExpandida() === rx.prescripcionId) {
-                  <div class="rx-detail">
-                    @for (d of rx.detalles; track d.medicamentoId) {
-                      <div class="record-row"><b>{{ d.medicamentoNombre }}</b><span class="xs muted">{{ d.dosis }} · {{ d.frecuencia }} · {{ d.duracion }} · {{ d.viaAdministracion }}</span></div>
+
+                @if (mostrarFormAlergia()) {
+                  <form [formGroup]="alergiaForm" (ngSubmit)="guardarAlergia()" class="inline-form stack gap-10">
+                    <div class="field">
+                      <label>Sustancia <span class="req">*</span></label>
+                      <input class="input" formControlName="sustancia" placeholder="Ej. Penicilina, mariscos, polen…" />
+                      @if (alergiaForm.controls.sustancia.touched && alergiaForm.controls.sustancia.invalid) {
+                        <span class="error-text">Indica la sustancia.</span>
+                      }
+                    </div>
+                    <div class="form-grid">
+                      <div class="field">
+                        <label>Tipo</label>
+                        <select class="select" formControlName="tipo">
+                          @for (t of tiposAlergia; track t) { <option [value]="t">{{ t }}</option> }
+                        </select>
+                      </div>
+                      <div class="field">
+                        <label>Severidad</label>
+                        <select class="select" formControlName="severidad">
+                          @for (s of severidades; track s) { <option [value]="s">{{ s }}</option> }
+                        </select>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Reacción</label>
+                      <input class="input" formControlName="reaccion" placeholder="Ej. Urticaria, dificultad respiratoria…" />
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm" style="align-self:flex-start" [disabled]="savingAlergia()">
+                      {{ savingAlergia() ? 'Guardando…' : 'Guardar alergia' }}
+                    </button>
+                  </form>
+                }
+
+                @if (alergias().length === 0) {
+                  <ui-empty-state icon="alertCircle" title="Sin alergias conocidas" subtitle="Registra las alergias que el paciente refiera." />
+                } @else {
+                  @for (a of alergias(); track a.alergiaId) {
+                    <div class="item-row">
+                      <div class="grow">
+                        <div class="row gap-10 wrap">
+                          <b class="small">{{ a.sustancia }}</b>
+                          <span class="badge" [class]="claseSeveridad(a.severidad)">{{ a.severidad }}</span>
+                          <span class="xs muted">{{ a.tipo }}</span>
+                        </div>
+                        @if (a.reaccion) { <p class="xs muted mt-8">{{ a.reaccion }}</p> }
+                      </div>
+                      @if (puedeEditar) {
+                        <button class="icon-btn" title="Quitar alergia" (click)="eliminarAlergia(a)"><ui-icon name="trash" [size]="15" /></button>
+                      }
+                    </div>
+                  }
+                }
+              </section>
+
+              <!-- Antecedentes -->
+              <section class="section-box">
+                <div class="row between">
+                  <span class="card-title">Antecedentes</span>
+                  @if (puedeEditar) {
+                    <button class="btn btn-secondary btn-sm" (click)="toggleFormAntecedente()">
+                      <ui-icon [name]="mostrarFormAntecedente() ? 'x' : 'plus'" [size]="14" /> {{ mostrarFormAntecedente() ? 'Cancelar' : 'Agregar' }}
+                    </button>
+                  }
+                </div>
+
+                @if (mostrarFormAntecedente()) {
+                  <form [formGroup]="antecedenteForm" (ngSubmit)="guardarAntecedente()" class="inline-form stack gap-10">
+                    <div class="form-grid">
+                      <div class="field">
+                        <label>Tipo</label>
+                        <select class="select" formControlName="tipo">
+                          @for (t of tiposAntecedente; track t.valor) { <option [value]="t.valor">{{ t.etiqueta }}</option> }
+                        </select>
+                      </div>
+                      @if (antecedenteForm.controls.tipo.value === 'Familiar') {
+                        <div class="field">
+                          <label>Parentesco <span class="req">*</span></label>
+                          <select class="select" formControlName="parentesco">
+                            <option value="">Selecciona…</option>
+                            @for (par of parentescos; track par) { <option [value]="par">{{ par }}</option> }
+                          </select>
+                        </div>
+                      } @else {
+                        <div class="field">
+                          <label>Fecha de diagnóstico</label>
+                          <input class="input" type="date" formControlName="fechaDiagnostico" [max]="hoy" />
+                        </div>
+                      }
+                    </div>
+                    <div class="field">
+                      <label>Descripción <span class="req">*</span></label>
+                      <textarea class="textarea" rows="2" formControlName="descripcion" placeholder="Ej. Hipertensión arterial, apendicectomía en 2015…"></textarea>
+                      @if (antecedenteForm.controls.descripcion.touched && antecedenteForm.controls.descripcion.invalid) {
+                        <span class="error-text">Describe el antecedente.</span>
+                      }
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm" style="align-self:flex-start" [disabled]="savingAntecedente()">
+                      {{ savingAntecedente() ? 'Guardando…' : 'Guardar antecedente' }}
+                    </button>
+                  </form>
+                }
+
+                @if (antecedentesPorTipo().length === 0) {
+                  <ui-empty-state icon="clipboard" title="Sin antecedentes registrados" subtitle="Enfermedades previas, cirugías, traumatismos o antecedentes familiares." />
+                } @else {
+                  @for (g of antecedentesPorTipo(); track g.valor) {
+                    <p class="section-label mt-12">{{ g.etiqueta }}</p>
+                    @for (an of g.items; track an.antecedenteId) {
+                      <div class="item-row">
+                        <div class="grow">
+                          <p class="small">{{ an.descripcion }}</p>
+                          @if (an.parentesco || an.fechaDiagnostico) {
+                            <p class="xs muted mt-8">
+                              @if (an.parentesco) { {{ an.parentesco }} }
+                              @if (an.fechaDiagnostico) { Diagnosticado el {{ an.fechaDiagnostico }} }
+                            </p>
+                          }
+                        </div>
+                        @if (puedeEditar) {
+                          <button class="icon-btn" title="Quitar antecedente" (click)="eliminarAntecedente(an)"><ui-icon name="trash" [size]="15" /></button>
+                        }
+                      </div>
                     }
-                    <button class="btn btn-secondary btn-sm mt-8" (click)="imprimirPrescripcion(rx)"><ui-icon name="printer" [size]="14" /> Imprimir</button>
+                  }
+                }
+              </section>
+            </div>
+          }
+
+          @case ('habitos') {
+            <form [formGroup]="habitosForm" (ngSubmit)="guardarHabitos()" class="tab-panel stack gap-16">
+              <div class="form-grid">
+                <div class="field"><label>Tabaquismo</label><input class="input" formControlName="tabaquismo" placeholder="Ej. No fuma / 5 cigarrillos al día" /></div>
+                <div class="field"><label>Consumo de alcohol</label><input class="input" formControlName="consumoAlcohol" placeholder="Ej. Ocasional, fines de semana" /></div>
+                <div class="field"><label>Actividad física</label><input class="input" formControlName="actividadFisica" placeholder="Ej. Camina 30 minutos diarios" /></div>
+                <div class="field"><label>Alimentación</label><input class="input" formControlName="alimentacion" placeholder="Ej. Balanceada, baja en sodio" /></div>
+              </div>
+              <div class="field">
+                <label>Observaciones generales</label>
+                <textarea class="textarea" rows="4" formControlName="observaciones" placeholder="Información clínica relevante que no corresponde a una atención concreta…"></textarea>
+              </div>
+              @if (puedeEditar) {
+                <button type="submit" class="btn btn-primary" style="align-self:flex-start" [disabled]="savingHabitos() || habitosForm.pristine">
+                  {{ savingHabitos() ? 'Guardando…' : 'Guardar cambios' }}
+                </button>
+              }
+            </form>
+          }
+
+          @case ('citas') {
+            <div class="tab-panel">
+              @if (loadingCitas()) {
+                <div class="skeleton" style="height:120px;border-radius:10px"></div>
+              } @else if (citas().length === 0) {
+                <ui-empty-state icon="calendar" title="Sin citas registradas" subtitle="Las citas agendadas para este paciente aparecerán aquí." />
+              } @else {
+                <div class="table-wrap">
+                  <table class="data">
+                    <thead><tr><th>Fecha</th><th>Médico</th><th>Especialidad</th><th>Consultorio</th><th>Motivo</th><th>Estado</th></tr></thead>
+                    <tbody>
+                      @for (c of citas(); track c.citaId) {
+                        <tr>
+                          <td class="strong">{{ c.fecha }} · {{ c.hora }}</td>
+                          <td>{{ c.medicoNombre }}</td>
+                          <td>{{ c.especialidadNombre || '—' }}</td>
+                          <td>{{ c.consultorioNombre || '—' }}</td>
+                          <td>{{ c.motivo || '—' }}</td>
+                          <td><ui-estado-cita-badge [estado]="c.estado" /></td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+          }
+
+          @case ('historial') {
+            <div class="expediente-grid tab-panel">
+              <section>
+                <p class="card-title" style="margin-bottom:12px">Historial de atenciones</p>
+                @if (atenciones().length === 0) {
+                  <ui-empty-state icon="stethoscope" title="Sin atenciones previas" subtitle="El historial se construye a partir de cada atención registrada." />
+                } @else {
+                  <div class="timeline">
+                    @for (at of atenciones(); track at.atencionId) {
+                      <div class="timeline-item">
+                        <span class="timeline-dot"></span>
+                        <div class="collapsible-head" style="padding:0 0 6px" (click)="toggleAtencion(at.atencionId)">
+                          <div>
+                            <b class="small">{{ at.motivoConsulta || 'Consulta' }}</b>
+                            <p class="xs muted mt-8">{{ at.fechaAtencion }} · {{ at.medicoNombre }}</p>
+                          </div>
+                          <ui-icon [name]="atencionExpandida() === at.atencionId ? 'chevronDown' : 'chevronRight'" [size]="15" />
+                        </div>
+                        @if (atencionExpandida() === at.atencionId) {
+                          <div class="atencion-expand">
+                            @if (at.diagnostico) {
+                              <p class="xs strong">Diagnóstico:</p>
+                              <p class="small mt-8">{{ at.diagnostico }}</p>
+                            }
+                            @if (at.notas.length) {
+                              <p class="xs strong mt-12">Notas:</p>
+                              @for (n of at.notas; track n.notaMedicaId) { <p class="small mt-8">{{ n.nota }}</p> }
+                            }
+                            @if (!at.diagnostico && !at.notas.length) {
+                              <p class="xs muted">Sin diagnóstico ni notas registradas en esta atención.</p>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
                   </div>
                 }
-              </div>
-            }
-          </div>
+              </section>
+
+              <section>
+                <p class="card-title" style="margin-bottom:12px">Tratamientos (prescripciones)</p>
+                @if (prescripciones().length === 0) {
+                  <ui-empty-state icon="pill" title="Sin prescripciones emitidas" />
+                } @else {
+                  <div class="stack gap-10">
+                    @for (rx of prescripciones(); track rx.prescripcionId) {
+                      <div class="rx-card">
+                        <div class="collapsible-head" style="padding:12px" (click)="toggleReceta(rx.prescripcionId)">
+                          <div>
+                            <b class="small">RX-{{ rx.prescripcionId }}</b>
+                            <p class="xs muted mt-8">{{ rx.fecha }} · {{ rx.medicoNombre }} · {{ rx.detalles.length }} medicamento(s)</p>
+                          </div>
+                          <ui-icon [name]="recetaExpandida() === rx.prescripcionId ? 'chevronDown' : 'chevronRight'" [size]="15" />
+                        </div>
+                        @if (recetaExpandida() === rx.prescripcionId) {
+                          <div class="rx-detail">
+                            @for (d of rx.detalles; track d.medicamentoId) {
+                              <div class="record-row"><b>{{ d.medicamentoNombre }}</b><span class="xs muted">{{ d.dosis }} · {{ d.frecuencia }} · {{ d.duracion }} · {{ d.viaAdministracion }}</span></div>
+                            }
+                            <button class="btn btn-secondary btn-sm mt-8" (click)="imprimirPrescripcion(rx)"><ui-icon name="printer" [size]="14" /> Imprimir</button>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </section>
+            </div>
+          }
         }
-      </div>
+      }
     </div>
   </div>
 }

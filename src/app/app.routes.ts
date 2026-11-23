@@ -43,6 +43,7 @@ export const routes: Routes = [
       {
         path: 'clinica',
         canActivate: [roleGuard],
+        // El Administrador solo entra al expediente (lectura); cada ruta hija acota su rol.
         data: { roles: ['Medico', 'Administrador'] },
         loadChildren: () => import('./features/clinica/clinica.routes').then((m) => m.CLINICA_ROUTES),
       },

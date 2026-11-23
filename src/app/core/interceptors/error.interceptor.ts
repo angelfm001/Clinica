@@ -16,6 +16,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const auth = inject(AuthService);
 
+  // El login maneja sus propios errores (un 401 ahí son credenciales inválidas, no una sesión expirada).
+  if (req.url.endsWith('/auth/login')) return next(req);
+
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
@@ -27,9 +30,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       } else if (error.status === 0) {
         toast.error('No se pudo conectar con el servidor. Verifica tu conexión.');
       } else if (error.status >= 500) {
-        toast.error('Ocurrió un error en el servidor. Intenta nuevamente.');
+        toast.error(error.error?.errorMessage ?? 'Ocurrió un error en el servidor. Intenta nuevamente.');
       } else {
-        const detail = (error.error?.detail || error.error?.title || error.message) as string | undefined;
+        // Los microservicios responden con el sobre HttpResponse (errorMessage) o con ProblemDetails (detail / errors).
+        const body = error.error;
+        const validacion = body?.errors ? (Object.values(body.errors).flat() as string[]).join(' ') : '';
+        const detail = (body?.errorMessage || body?.detail || validacion || body?.title || error.message) as string | undefined;
         toast.error(detail ?? 'Ocurrió un error al procesar la solicitud.');
       }
       void auth;

@@ -1,7 +1,6 @@
+/** Producción: se espera un API Gateway / proxy inverso que publique las mismas rutas `/api/...`. */
 export const environment = {
   production: true,
-  useMock: false,
-  apiGateway: '/api',
   api: {
     security: '/api/security',
     patient: '/api/patient',

@@ -1,0 +1,32 @@
+{
+  "/api/security": {
+    "target": "http://localhost:5248",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/security": "" }
+  },
+  "/api/patient": {
+    "target": "http://localhost:5244",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/patient": "" }
+  },
+  "/api/staff": {
+    "target": "http://localhost:5250",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/staff": "" }
+  },
+  "/api/appointment": {
+    "target": "http://localhost:5246",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/appointment": "" }
+  },
+  "/api/clinical-care": {
+    "target": "http://localhost:5252",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/clinical-care": "" }
+  }
+}

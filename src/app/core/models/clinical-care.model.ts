@@ -1,11 +1,67 @@
 /**
- * MedicalAppointments.ClinicalCare — versión reducida (5 módulos).
- * Fusiona lo que antes eran `MedicalRecord` y `Treatment` en un único
- * microservicio. No existen Expedientes_Clínicos, Antecedentes, Alergias,
- * Hábitos, catálogo de Síntomas ni catálogo CIE-10: el historial clínico se
- * obtiene directamente de las Atenciones registradas del paciente, y el
- * diagnóstico se guarda como texto libre en la propia Atención.
+ * MedicalAppointments.ClinicalCare — fusiona lo que antes eran `MedicalRecord`
+ * y `Treatment` en un único microservicio. Cada paciente tiene un Expediente
+ * clínico (alergias, antecedentes y hábitos); el historial de atenciones se
+ * obtiene de las Atenciones registradas del paciente. No hay catálogo de
+ * Síntomas ni CIE-10: el diagnóstico es texto libre en la propia Atención.
  */
+
+// ------------------------------------------------------------ Expediente clínico
+export type TipoAlergia = 'Medicamento' | 'Alimento' | 'Ambiental' | 'Otra';
+export type SeveridadAlergia = 'Leve' | 'Moderada' | 'Severa';
+export type TipoAntecedente = 'Patologico' | 'Quirurgico' | 'Traumatico' | 'Familiar' | 'Otro';
+
+export const TIPOS_ALERGIA: TipoAlergia[] = ['Medicamento', 'Alimento', 'Ambiental', 'Otra'];
+export const SEVERIDADES_ALERGIA: SeveridadAlergia[] = ['Leve', 'Moderada', 'Severa'];
+export const TIPOS_ANTECEDENTE: { valor: TipoAntecedente; etiqueta: string }[] = [
+  { valor: 'Patologico', etiqueta: 'Patológico' },
+  { valor: 'Quirurgico', etiqueta: 'Quirúrgico' },
+  { valor: 'Traumatico', etiqueta: 'Traumático' },
+  { valor: 'Familiar', etiqueta: 'Familiar' },
+  { valor: 'Otro', etiqueta: 'Otro' },
+];
+
+export interface Alergia {
+  alergiaId: number;
+  sustancia: string;
+  tipo: TipoAlergia;
+  severidad: SeveridadAlergia;
+  reaccion?: string | null;
+  fechaRegistro: string;
+}
+
+export type AlergiaInput = Omit<Alergia, 'alergiaId' | 'fechaRegistro'>;
+
+export interface Antecedente {
+  antecedenteId: number;
+  tipo: TipoAntecedente;
+  descripcion: string;
+  /** Solo en antecedentes familiares. */
+  parentesco?: string | null;
+  /** ISO 'yyyy-MM-dd'. */
+  fechaDiagnostico?: string | null;
+  fechaRegistro: string;
+}
+
+export type AntecedenteInput = Omit<Antecedente, 'antecedenteId' | 'fechaRegistro'>;
+
+export interface HabitosExpediente {
+  tabaquismo?: string | null;
+  consumoAlcohol?: string | null;
+  actividadFisica?: string | null;
+  alimentacion?: string | null;
+  observaciones?: string | null;
+}
+
+/** Uno por paciente: se abre con su primera atención o al consultarlo por primera vez. */
+export interface ExpedienteClinico extends HabitosExpediente {
+  expedienteId: number;
+  pacienteId: number;
+  numeroExpediente: string;
+  fechaApertura: string;
+  alergias: Alergia[];
+  antecedentes: Antecedente[];
+}
 
 export type EstadoAtencion = 'Abierta' | 'Cerrada';
 

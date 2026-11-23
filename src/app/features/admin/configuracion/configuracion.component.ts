@@ -19,7 +19,6 @@ export class ConfiguracionComponent {
   protected readonly theme = inject(ThemeService);
   private readonly toast = inject(ToastService);
 
-  protected readonly useMock = environment.useMock;
   protected readonly servicios = [
     { nombre: 'Security', url: environment.api.security },
     { nombre: 'Patient', url: environment.api.patient },

@@ -14,7 +14,9 @@
     <button class="view-btn" [class.active]="vista() === 'mes'" (click)="setVista('mes')">Mes</button>
   </div>
 
-  <button class="btn btn-primary" (click)="openNueva()"><ui-icon name="plus" [size]="16" /> Nueva Cita</button>
+  @if (puedeAgendar) {
+    <button class="btn btn-primary" (click)="openNueva()"><ui-icon name="plus" [size]="16" /> Nueva Cita</button>
+  }
 </ui-page-header>
 
 <div class="card card-pad">

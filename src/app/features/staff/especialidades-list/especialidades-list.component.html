@@ -1,6 +1,8 @@
 <div class="toolbar">
   <p class="grow muted small" style="align-self:center">Catálogo de especialidades médicas disponibles en la clínica.</p>
-  <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nueva especialidad</button>
+  @if (puedeEditar) {
+    <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Nueva especialidad</button>
+  }
 </div>
 
 <div class="table-wrap">
@@ -16,12 +18,14 @@
             </span>
           </td>
           <td>
-            <div class="row-actions">
-              <button class="icon-btn" (click)="openEdit(e)" title="Editar"><ui-icon name="pencil" [size]="14" /></button>
-              <button class="icon-btn" [class.danger]="e.activo" (click)="toggleActivo(e)" [title]="e.activo ? 'Desactivar' : 'Activar'">
-                <ui-icon [name]="e.activo ? 'trash' : 'refresh'" [size]="14" />
-              </button>
-            </div>
+            @if (puedeEditar) {
+              <div class="row-actions">
+                <button class="icon-btn" (click)="openEdit(e)" title="Editar"><ui-icon name="pencil" [size]="14" /></button>
+                <button class="icon-btn" [class.danger]="e.activo" (click)="toggleActivo(e)" [title]="e.activo ? 'Desactivar' : 'Activar'">
+                  <ui-icon [name]="e.activo ? 'trash' : 'refresh'" [size]="14" />
+                </button>
+              </div>
+            }
           </td>
         </tr>
       }

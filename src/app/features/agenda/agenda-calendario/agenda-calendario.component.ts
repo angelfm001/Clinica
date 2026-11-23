@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { StaffService } from '../../../core/services/staff.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Cita, DURACION_CITA_MIN, ESTADO_CITA_META } from '../../../core/models/appointment.model';
 import { Especialidad, Medico } from '../../../core/models/staff.model';
 import { IconComponent } from '../../../shared/ui/icon/icon.component';
@@ -50,6 +51,8 @@ export class AgendaCalendarioComponent {
   private readonly appointmentService = inject(AppointmentService);
   private readonly staffService = inject(StaffService);
   private readonly route = inject(ActivatedRoute);
+  /** Appointment solo permite agendar a Recepción y Administrador. */
+  protected readonly puedeAgendar = inject(AuthService).hasRol('Recepcion', 'Administrador');
 
   protected readonly loading = signal(true);
   protected readonly citas = signal<Cita[]>([]);
@@ -130,7 +133,7 @@ export class AgendaCalendarioComponent {
     this.staffService.listSpecialties().subscribe((res) => this.especialidades.set(res));
     this.load();
 
-    if (this.route.snapshot.queryParamMap.get('nueva')) {
+    if (this.route.snapshot.queryParamMap.get('nueva') && this.puedeAgendar) {
       this.modalOpen.set(true);
     }
 

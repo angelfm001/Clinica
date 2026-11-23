@@ -9,7 +9,9 @@
     </h1>
     <p class="muted small mt-8">Disponibilidad semanal configurada para este médico.</p>
   </div>
-  <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Agregar horario</button>
+  @if (puedeEditar) {
+    <button class="btn btn-primary" (click)="openCreate()"><ui-icon name="plus" [size]="16" /> Agregar horario</button>
+  }
 </div>
 
 <div class="card card-pad">
@@ -31,14 +33,17 @@
               class="block"
               [style.top.%]="b.top"
               [style.height.%]="b.height"
+              [disabled]="!puedeEditar"
               (click)="openEdit(b.horario)"
-              [title]="'Editar horario'"
+              [title]="puedeEditar ? 'Editar horario' : ''"
             >
               <b>{{ b.horario.horaInicio }} – {{ b.horario.horaFin }}</b>
               <span>{{ nombreConsultorio(b.horario.consultorioId) }}</span>
-              <span class="remove" (click)="eliminar(b.horario); $event.stopPropagation()">
-                <ui-icon name="x" [size]="12" />
-              </span>
+              @if (puedeEditar) {
+                <span class="remove" (click)="eliminar(b.horario); $event.stopPropagation()">
+                  <ui-icon name="x" [size]="12" />
+                </span>
+              }
             </button>
           }
         </div>

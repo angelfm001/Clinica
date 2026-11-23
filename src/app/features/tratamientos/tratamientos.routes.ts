@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { roleGuard } from '../../core/guards/role.guard';
+
 export const TRATAMIENTOS_ROUTES: Routes = [
   {
     path: '',
@@ -11,6 +13,8 @@ export const TRATAMIENTOS_ROUTES: Routes = [
     path: 'prescripcion/nueva',
     loadComponent: () => import('./prescripcion-nueva/prescripcion-nueva.component').then((m) => m.PrescripcionNuevaComponent),
     title: 'Nueva prescripción · Citas Médicas',
-    data: { help: 'Genera una receta médica con uno o varios medicamentos para la atención en curso.' },
+    // ClinicalCare solo permite prescribir al rol Médico.
+    canActivate: [roleGuard],
+    data: { roles: ['Medico'], help: 'Genera una receta médica con uno o varios medicamentos para la atención en curso.' },
   },
 ];

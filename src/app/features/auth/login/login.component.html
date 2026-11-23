@@ -78,7 +78,7 @@
       <span class="demo-label">Acceso rápido de demostración</span>
       <div class="demo-users">
         @for (u of demoUsers; track u.user) {
-          <button type="button" class="demo-chip" (click)="fillDemo(u.user)">{{ u.label }}</button>
+          <button type="button" class="demo-chip" (click)="fillDemo(u)">{{ u.label }}</button>
         }
       </div>
       <p class="hint">Cualquier contraseña funciona con el backend simulado (modo mock).</p>

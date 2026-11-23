@@ -33,8 +33,8 @@
     <p class="section-label">Conexión con microservicios</p>
     <div class="row between" style="padding:8px 0">
       <span class="small">Modo de datos</span>
-      <span class="badge" [class]="useMock ? 'badge-warning' : 'badge-success'">
-        <span class="badge-dot"></span>{{ useMock ? 'Simulado (mock)' : 'Backend real' }}
+      <span class="badge badge-success">
+        <span class="badge-dot"></span>Backend real
       </span>
     </div>
     <div class="divider mt-8"></div>
@@ -46,6 +46,6 @@
         </div>
       }
     </div>
-    <p class="hint mt-16">Las URLs se configuran en <code>environment.ts</code>. Con <code>useMock: false</code>, la app consume los microservicios reales sin cambios en los componentes.</p>
+    <p class="hint mt-16">Las rutas se configuran en <code>environment.ts</code>; en desarrollo <code>proxy.conf.json</code> las reenvía al puerto de cada microservicio.</p>
   </div>
 </div>

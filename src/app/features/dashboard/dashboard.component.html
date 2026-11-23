@@ -1,7 +1,9 @@
 <ui-page-header icon="home" title="Inicio" [subtitle]="'Hola, ' + (auth.usuario()?.nombreCompleto ?? '') + '. Este es el resumen de hoy.'">
-  <a routerLink="/agenda" class="btn btn-primary">
-    <ui-icon name="plus" [size]="16" /> Nueva cita
-  </a>
+  @if (auth.hasRol('Recepcion', 'Administrador')) {
+    <a routerLink="/agenda" [queryParams]="{ nueva: 1 }" class="btn btn-primary">
+      <ui-icon name="plus" [size]="16" /> Nueva cita
+    </a>
+  }
 </ui-page-header>
 
 <div class="dashboard-grid">
@@ -46,18 +48,24 @@
             <span class="qicon"><ui-icon name="userPlus" [size]="22" /></span>
             <span>Nuevo paciente</span>
           </a>
-          <a routerLink="/agenda" [queryParams]="{ nueva: 1 }" class="quick">
-            <span class="qicon"><ui-icon name="calendar" [size]="22" /></span>
-            <span>Nueva cita</span>
-          </a>
-          <a routerLink="/clinica" class="quick">
-            <span class="qicon"><ui-icon name="stethoscope" [size]="22" /></span>
-            <span>Ver atenciones</span>
-          </a>
-          <a routerLink="/tratamientos" class="quick">
-            <span class="qicon"><ui-icon name="pill" [size]="22" /></span>
-            <span>Tratamientos</span>
-          </a>
+          @if (auth.hasRol('Recepcion', 'Administrador')) {
+            <a routerLink="/agenda" [queryParams]="{ nueva: 1 }" class="quick">
+              <span class="qicon"><ui-icon name="calendar" [size]="22" /></span>
+              <span>Nueva cita</span>
+            </a>
+          }
+          @if (auth.hasRol('Medico')) {
+            <a routerLink="/clinica" class="quick">
+              <span class="qicon"><ui-icon name="stethoscope" [size]="22" /></span>
+              <span>Ver atenciones</span>
+            </a>
+          }
+          @if (auth.hasRol('Medico', 'Administrador')) {
+            <a routerLink="/tratamientos" class="quick">
+              <span class="qicon"><ui-icon name="pill" [size]="22" /></span>
+              <span>Tratamientos</span>
+            </a>
+          }
         </div>
       </div>
 

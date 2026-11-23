@@ -22,6 +22,40 @@
 .rx-card { border: 1px solid var(--border-soft); border-radius: var(--r-md); overflow: hidden; }
 .rx-detail { padding: 0 14px 14px; }
 
+.mt-12 { margin-top: 12px; }
+
+.tab-count {
+  background: var(--brand-100); color: var(--brand-700); border-radius: var(--r-full);
+  font-size: 10.5px; font-weight: 700; padding: 1px 7px;
+}
+[data-theme='dark'] .tab-count { background: rgba(9, 107, 224, .25); color: var(--brand-300); }
+
+/* Aviso de alergias: siempre visible bajo el encabezado del paciente. */
+.allergy-alert {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 14px 16px; border-radius: var(--r-md);
+  background: var(--warning-bg); color: var(--warning); border: 1px solid currentColor;
+}
+.allergy-alert.severe { background: var(--danger-bg); color: var(--danger); }
+.allergy-alert b { color: inherit; }
+
+.readonly-note {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12.5px; color: var(--text-soft); margin: 0 0 14px;
+}
+
+.section-box { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+.inline-form {
+  background: var(--surface-2); border-radius: var(--r-md); padding: 14px; margin: 10px 0 6px;
+}
+
+.item-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--border-soft);
+}
+.item-row:last-child { border-bottom: 0; }
+
 @media (max-width: 950px) {
   .expediente-grid { grid-template-columns: 1fr; }
 }
